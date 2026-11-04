@@ -1,0 +1,32 @@
+key: new_registered
+name: New customer onboarding
+description: >
+  Registered within the last 45 days with zero or one order. The first 14 days
+  decide whether this customer ever repeats, so the welcome sequence is the
+  highest-leverage automation in the hub. Free-shipping threshold beats a
+  discount here: it lifts AOV instead of cutting it.
+priority: 40
+goal: first_repeat_order
+cooldown_days: 90
+
+entry:
+  lifecycle: [new]
+  all:
+    - {field: orders_count, op: lte, value: 1}
+    - {field: suppressed, op: is_false}
+
+exit:
+  - {field: suppressed, op: is_true, reason: suppressed}
+  - {field: orders_count, op: gte, value: 2, reason: goal_met}
+  - {field: lifecycle, op: in, value: [lost], reason: disqualified}
+
+steps:
+  - {type: wait, hours: 1}
+  - {type: send, channel: email, template: welcome_1_brand, include_offer: false}
+  - {type: wait, hours: 72}
+  - {type: send, channel: push, template: welcome_2_browse, include_offer: false}
+  - {type: wait, hours: 168}
+  - {type: send, channel: email, template: welcome_3_first_order, include_offer: true}
+  - {type: wait, hours: 336}
+  - {type: send, channel: inapp, template: welcome_4_help, include_offer: false}
+  - {type: end}

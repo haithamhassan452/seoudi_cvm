@@ -1,0 +1,31 @@
+key: churn_risk
+name: At-risk rescue
+description: >
+  Customers with two or more orders who have gone quiet past the risk window.
+  Offer depth is deliberately capped at the ladder's cheap end: this segment
+  responds to timing far more than to price, and a discount here trains them
+  to lapse again next quarter.
+priority: 20
+goal: reactivation
+cooldown_days: 90
+
+entry:
+  lifecycle: [at_risk]
+  all:
+    - {field: orders_count, op: gte, value: 2}
+    - {field: suppressed, op: is_false}
+
+exit:
+  - {field: suppressed, op: is_true, reason: suppressed}
+  - {field: days_since_last_order, op: lte, value: 7, reason: reactivated}
+  - {field: churn_prob, op: gte, value: 0.97, reason: unreachable_by_content}
+
+steps:
+  - {type: send, channel: email, template: atrisk_we_miss_you, include_offer: false}
+  - {type: wait, hours: 96}
+  - {type: send, channel: push, template: atrisk_reminder, include_offer: true}
+  - {type: wait, hours: 168}
+  - {type: send, channel: sms, template: atrisk_sms, include_offer: true}
+  - {type: wait, hours: 240}
+  - {type: send, channel: email, template: atrisk_last_call, include_offer: true}
+  - {type: end}

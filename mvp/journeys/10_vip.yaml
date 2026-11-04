@@ -1,0 +1,31 @@
+key: vip
+name: VIP recognition & retention
+description: >
+  Your top 5% by projected CLV. The goal is to make them feel known, not to
+  discount them. Every VIP who receives a percentage-off offer teaches the
+  rest of the base to wait for a sale — so this journey carries reward
+  mechanics only.
+priority: 10
+goal: retention
+cooldown_days: 120
+
+entry:
+  all:
+    - {field: is_vip, op: is_true}
+    - {field: suppressed, op: is_false}
+
+exit:
+  - {field: suppressed, op: is_true, reason: suppressed}
+  - {field: consent.email, op: is_false, reason: no_channel}
+  - {field: days_since_last_order, op: lte, value: 3, reason: ordered_recently}
+
+steps:
+  - {type: tag, tag: cvm_vip}
+  - {type: send, channel: email, template: vip_welcome, include_offer: false}
+  - {type: wait, hours: 72}
+  - {type: send, channel: inapp, template: vip_early_access, include_offer: false}
+  - {type: wait, hours: 168}
+  - {type: send, channel: email, template: vip_personal_note, include_offer: true}
+  - {type: wait, hours: 336}
+  - {type: send, channel: push, template: vip_thank_you, include_offer: false}
+  - {type: end}

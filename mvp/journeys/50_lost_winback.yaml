@@ -1,0 +1,28 @@
+key: lost_winback
+name: Lost customer win-back
+description: >
+  No order for 180+ days, or registered and never activated. The cheapest
+  journey to run and the easiest to waste money on: run it on a holdout, and
+  retire it the quarter it stops paying for itself.
+priority: 50
+goal: reactivation
+cooldown_days: 180
+
+entry:
+  lifecycle: [lost]
+  all:
+    - {field: suppressed, op: is_false}
+
+exit:
+  - {field: suppressed, op: is_true, reason: suppressed}
+  - {field: days_since_last_order, op: lte, value: 7, reason: reactivated}
+
+steps:
+  - {type: send, channel: email, template: lost_survey, include_offer: false}
+  - {type: wait, hours: 120}
+  - {type: send, channel: email, template: lost_voucher, include_offer: true}
+  - {type: wait, hours: 336}
+  - {type: send, channel: sms, template: lost_sms, include_offer: true}
+  - {type: wait, hours: 504}
+  - {type: send, channel: push, template: lost_final, include_offer: false}
+  - {type: end}

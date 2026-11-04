@@ -1,0 +1,1910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Online CVM Tower — Seoudi</title>
+<meta name="description" content="Control tower for customer value management: store-level CVM index against target, lifecycle movement, treatment allocation, activity log and A/B test registry.">
+<meta name="theme-color" content="#0E6E5C">
+<meta name="color-scheme" content="light">
+<meta name="robots" content="noindex, nofollow">
+<meta property="og:title" content="Online CVM Tower — Seoudi">
+<meta property="og:description" content="Every branch, every activity, every test tied to one number: the store's CVM target.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230E6E5C'/%3E%3Ctext x='32' y='43' font-family='Segoe UI,Arial,sans-serif' font-size='21' font-weight='700' fill='%23FFFDF8' text-anchor='middle'%3ECVM%3C/text%3E%3C/svg%3E">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F2EEE5;          /* page cream */
+  --bg2:#FFFDF8;         /* drawer / raised */
+  --panel:#FFFDF8;       /* card */
+  --panel2:#F7F4EC;      /* inner tile */
+  --panel3:#EFEADD;      /* track / rail */
+  --line:#EDE7D9;
+  --line2:#DCD5C5;
+  --tx:#181A1F;
+  --tx2:#5D645E;
+  --tx3:#8A8F87;
+  --g:#2F9E66;           /* on target */
+  --w:#C08A12;           /* watch */
+  --o:#C2622A;           /* off target */
+  --r:#9B1612;           /* critical */
+  --acc:#0E6E5C;         /* brand deep green */
+  --cyan:#1E7A8C;
+  --v:#5B4B9E;
+  --r1:14px;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --shadow:0 1px 2px rgba(24,26,31,.045),0 8px 24px -18px rgba(24,26,31,.22);
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--tx);font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  font-size:12.5px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+/* ---------- app bar ---------- */
+.appbar{position:sticky;top:0;z-index:30;background:#F5F3EB;border-bottom:1px solid #E6E0D2}
+.appbar-in{max-width:1560px;margin:0 auto;padding:0 22px;display:flex;align-items:center;gap:26px;height:58px}
+.brand{display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.brand .mark{width:34px;height:34px;border-radius:9px;background:var(--acc);color:#fff;display:grid;place-items:center;
+  font-size:11px;font-weight:800;letter-spacing:.4px}
+.brand-txt b{font-size:15px;font-weight:700;letter-spacing:-.2px;color:#101C16}
+.tabs-main{display:flex;align-items:center;gap:2px;flex:1 1 auto;overflow-x:auto;height:100%;scrollbar-width:none}
+.tabs-main::-webkit-scrollbar{display:none}
+.tabs-main a{display:flex;align-items:center;gap:6px;height:100%;padding:0 11px;font-size:12.5px;font-weight:600;
+  color:var(--tx2);text-decoration:none;border-bottom:2.5px solid transparent;white-space:nowrap;cursor:pointer;transition:color .15s}
+.tabs-main a:hover{color:var(--tx)}
+.tabs-main a.on{color:var(--tx);border-bottom-color:var(--acc)}
+.tabs-main a .cnt{background:#D6453D;color:#fff;font-size:9.5px;font-weight:800;padding:1px 5px;border-radius:9px;line-height:1.5}
+.appbar-right{display:flex;align-items:center;gap:9px;flex:0 0 auto}
+.pill-admin{background:#D8EBE5;color:#0A4D40;font-size:10px;font-weight:800;letter-spacing:.8px;padding:5px 11px;border-radius:7px}
+
+/* ---------- page ---------- */
+.page{max-width:1560px;margin:0 auto;padding:26px 22px 70px}
+.page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:18px;flex-wrap:wrap}
+.page-head h1{font-size:31px;font-weight:700;letter-spacing:-.9px;color:#0E1512;display:inline-block;vertical-align:middle}
+.tag{display:inline-block;vertical-align:middle;margin-left:10px;border:1px solid #D8D2C2;color:var(--tx3);
+  font-size:9.5px;font-weight:800;letter-spacing:1px;padding:3px 9px;border-radius:20px;background:transparent}
+.page-sub{color:var(--tx2);font-size:12.5px;margin-top:5px}
+.page-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding-top:6px}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;gap:7px;background:#FFFDF8;border:1px solid #E2DCCE;color:var(--tx);
+  font-size:12px;font-weight:600;padding:8px 14px;border-radius:10px;cursor:pointer;font-family:inherit;
+  transition:background .15s,border-color .15s,box-shadow .15s}
+.btn:hover{background:#FBF8F0;border-color:#D3CBB9}
+.btn.primary{background:#2F9E66;border-color:#2F9E66;color:#fff;box-shadow:0 1px 2px rgba(47,158,102,.25)}
+.btn.primary:hover{background:#288A59;border-color:#288A59}
+.btn.sm{padding:5px 11px;font-size:11.5px;border-radius:8px}
+.btn.ghost{background:transparent}
+.chip{display:inline-flex;align-items:center;gap:7px;background:#FFFDF8;border:1px solid #E2DCCE;
+  padding:8px 13px;border-radius:10px;font-size:12px;color:var(--tx2);font-weight:600}
+.chip .dot,.dot{width:7px;height:7px;border-radius:50%;background:var(--g);flex:0 0 7px}
+.dot.w{background:var(--w)}
+
+/* ---------- cards ---------- */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r1);padding:16px;box-shadow:var(--shadow)}
+.card.pad0{padding:0;overflow-y:hidden;overflow-x:auto}
+.card-h{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.card-h h3{font-size:13.5px;font-weight:700;letter-spacing:-.15px;color:#101C16}
+.card-h .sub{font-size:11.5px;color:var(--tx3);margin-top:2px;flex:1 1 auto}
+.card-h .right{flex:0 0 auto;display:flex;align-items:center;gap:6px}
+
+/* ---------- type bits ---------- */
+.small{font-size:11.5px}
+.tsub{font-size:10.5px;color:var(--tx3);line-height:1.45}
+.tname{font-size:12px;font-weight:650;color:var(--tx);letter-spacing:-.1px}
+.muted{color:var(--tx3)}
+.mono{font-family:var(--mono);font-size:11px}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+.sec{font-size:9.5px;text-transform:uppercase;letter-spacing:.9px;color:var(--tx3);font-weight:800;margin:20px 0 9px}
+.sec:first-child{margin-top:0}
+.flex1{flex:1 1 auto;min-width:0}
+.row{display:flex;align-items:center;gap:8px}
+.spread{display:flex;align-items:center;justify-content:space-between;gap:10px}
+
+/* ---------- layout ---------- */
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g23{grid-template-columns:2fr 1fr}
+.g32{grid-template-columns:1fr 2fr}
+.g34{grid-template-columns:3fr 2fr}
+@media(max-width:1250px){.g4{grid-template-columns:repeat(2,1fr)}.g23,.g32,.g34,.g3{grid-template-columns:1fr}}
+@media(max-width:760px){.g2,.g4{grid-template-columns:1fr}}
+
+/* ---------- kpi ---------- */
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--r1);padding:14px 16px;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.kpi .lbl{font-size:9.5px;color:var(--tx3);text-transform:uppercase;letter-spacing:.7px;font-weight:800}
+.kpi .val{font-size:26px;font-weight:700;letter-spacing:-1px;margin-top:6px;font-variant-numeric:tabular-nums;color:#0E1512}
+.kpi .val small{font-size:13px;font-weight:600;color:var(--tx3)}
+.kpi .delta{font-size:11px;margin-top:3px;color:var(--tx2);display:flex;align-items:center;gap:4px}
+.kpi .spark{position:absolute;right:0;bottom:0;opacity:.5}
+.up{color:var(--g);font-weight:700}
+.down{color:var(--r);font-weight:700}
+
+/* ---------- tables ---------- */
+table{width:100%;border-collapse:collapse;font-size:11.5px}
+th{text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:var(--tx3);font-weight:800;
+  padding:9px 11px;border-bottom:1px solid var(--line2);background:transparent;white-space:nowrap}
+td{padding:9px 11px;border-bottom:1px solid #F1ECE0;vertical-align:middle}
+tr:last-child td{border-bottom:0}
+tbody tr.cl{cursor:pointer;transition:background .12s}
+tbody tr.cl:hover{background:#FBF8F0}
+.tr{text-align:right}
+th.tr{text-align:right}
+
+/* ---------- status pills ---------- */
+.st{display:inline-flex;align-items:center;gap:5px;padding:2.5px 8px;border-radius:20px;font-size:10px;font-weight:700;
+  letter-spacing:.1px;white-space:nowrap;border:1px solid transparent;line-height:1.5}
+.st i{width:5px;height:5px;border-radius:50%;background:currentColor}
+.st.g{color:#1F7A4F;background:#E4F3EA;border-color:#C9E7D6}
+.st.w{color:#8A6209;background:#FBF1D9;border-color:#EFDFBB}
+.st.o{color:#A0521F;background:#FBEBDF;border-color:#EFD6C3}
+.st.r{color:#8E1410;background:#F8E3E1;border-color:#EEC9C5}
+.st.n{color:var(--tx2);background:#F4F1E8;border-color:#E4DECF}
+.st.b{color:#24549B;background:#E7EEF9;border-color:#CBDCF1}
+.st.c{color:#155E6B;background:#E2F0F2;border-color:#C4E2E6}
+.st.v{color:#4B3D85;background:#ECE8F7;border-color:#D8D1EC}
+.flag{display:inline-block;background:#F8E3E1;color:#8E1410;border:1px solid #EEC9C5;font-size:9.5px;font-weight:700;
+  padding:2px 7px;border-radius:5px;margin-right:3px;white-space:nowrap}
+.flag.w{background:#FBF1D9;color:#8A6209;border-color:#EFDFBB}
+
+/* ---------- tabs ---------- */
+.tabs{display:inline-flex;background:#F5F2E9;border:1px solid var(--line2);border-radius:10px;padding:3px;gap:2px}
+.tabs button{background:none;border:0;color:var(--tx2);font-size:11.5px;font-weight:650;padding:5px 12px;border-radius:7px;
+  cursor:pointer;font-family:inherit;transition:background .15s,color .15s}
+.tabs button:hover{color:var(--tx)}
+.tabs button.on{background:#FFFDF8;color:var(--tx);box-shadow:0 1px 2px rgba(24,26,31,.09)}
+
+/* ---------- bars / mix ---------- */
+.bar{height:6px;border-radius:4px;background:var(--panel3);overflow:hidden;min-width:38px}
+.bar>i{display:block;height:100%;border-radius:4px}
+.mix{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--panel3)}
+.mix>i{display:block;height:100%}
+
+/* ---------- waterfall ---------- */
+.wf{display:flex;flex-direction:column;gap:6px}
+.wf-row{display:flex;align-items:center;gap:9px;font-size:11.5px}
+.wf-row .n{width:104px;color:var(--tx2)}
+.wf-track{flex:1;height:16px;background:var(--panel3);border-radius:4px;position:relative;overflow:hidden}
+.wf-fill{position:absolute;top:0;bottom:0;border-radius:3px}
+.wf-row .v{width:56px;text-align:right;font-family:var(--mono);font-size:11px}
+
+/* ---------- lifecycle matrix ---------- */
+.mx{display:grid;gap:2px;font-size:10.5px}
+.mx .mh{display:grid;place-items:center;color:var(--tx3);font-size:9px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:4px 0}
+.mx .mr{display:grid;place-items:center;color:var(--tx3);font-size:9px;font-weight:800}
+.mx .cell{border-radius:5px;padding:5px 3px;text-align:center;font-family:var(--mono);font-size:10.5px;line-height:1.25}
+.mx .cell b{display:block;font-size:11px}
+.mx .cell span{font-size:8.5px;opacity:.9}
+
+/* ---------- boxes ---------- */
+.warnbox,.okbox{display:flex;gap:9px;align-items:flex-start;border-radius:10px;padding:10px 13px;font-size:11.5px;line-height:1.55}
+.warnbox{background:#FBEDD9;border:1px solid #F0D8B4;color:#6E4A10}
+.okbox{background:#E9F5EE;border:1px solid #CBE7D8;color:#1F5B3F}
+.warnbox b,.okbox b{font-weight:700}
+.warnbox>span:first-child,.okbox>span:first-child{font-weight:700;flex:0 0 auto}
+
+/* ---------- code ---------- */
+.code{background:#12211C;border:1px solid #1E3229;border-radius:10px;padding:12px;font-family:var(--mono);font-size:10.5px;
+  color:#A9C4B7;overflow-x:auto;line-height:1.65;white-space:pre}
+
+/* ---------- fields ---------- */
+.field label{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--tx3);font-weight:800;margin-bottom:5px}
+.field select,.field input[type=text]{width:100%;background:#FFFDF8;border:1px solid var(--line2);color:var(--tx);
+  border-radius:9px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none}
+.field select:focus{border-color:var(--acc)}
+input[type=range]{-webkit-appearance:none;appearance:none;height:6px;border-radius:4px;background:var(--panel3);outline:none;margin-top:8px;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--acc);
+  cursor:pointer;border:2px solid #FFFDF8;box-shadow:0 0 0 1px var(--acc),0 1px 3px rgba(0,0,0,.2)}
+input[type=range]::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:var(--acc);cursor:pointer;border:2px solid #FFFDF8}
+
+/* ---------- legend / misc ---------- */
+.legend{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--tx2);font-weight:600}
+.legend i{width:8px;height:8px;border-radius:2px;display:inline-block}
+.empty{padding:34px;text-align:center;color:var(--tx3);font-size:12px}
+
+/* ---------- drawer ---------- */
+.scrim{position:fixed;inset:0;background:rgba(24,26,31,.34);z-index:40;opacity:0;pointer-events:none;transition:opacity .2s}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;height:100vh;width:780px;max-width:96vw;z-index:50;background:var(--bg2);
+  border-left:1px solid var(--line2);box-shadow:-24px 0 60px rgba(24,26,31,.16);transform:translateX(100%);
+  transition:transform .26s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
+.drawer.on{transform:none}
+.drawer-h{display:flex;align-items:flex-start;gap:12px;padding:18px 22px;border-bottom:1px solid var(--line);background:#FBF9F2}
+.drawer-h h2{font-size:17px;font-weight:700;letter-spacing:-.4px;color:#0E1512}
+.drawer-h .sub{font-size:11.5px;color:var(--tx3);margin-top:3px}
+.drawer-h .x{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;cursor:pointer;color:var(--tx2);
+  border:1px solid var(--line2);background:#FFFDF8;font-size:12px;flex:0 0 28px}
+.drawer-h .x:hover{background:#F4F1E8}
+.drawer-b{overflow-y:auto;padding:20px 22px 60px;flex:1}
+
+/* ---------- toast ---------- */
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,24px);background:#12211C;color:#F2F5F0;
+  border-radius:11px;padding:11px 17px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:9px;
+  box-shadow:0 12px 34px rgba(24,26,31,.32);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:60}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+::selection{background:#CDE8DC;color:#0E1512}
+</style>
+</head>
+<body>
+<noscript><div style="padding:24px;font-family:Segoe UI,Arial,sans-serif;background:#F2EEE5;color:#181A1F">
+<b>Online CVM Tower</b> needs JavaScript — the entire view layer is rendered client-side from an in-page data engine.</div></noscript>
+<header class="appbar">
+  <div class="appbar-in">
+    <div class="brand">
+      <div class="mark">CVM</div>
+      <div class="brand-txt"><b>Online CVM Tower</b></div>
+    </div>
+    <nav class="tabs-main" id="nav"></nav>
+    <div class="appbar-right">
+      <span class="pill-admin">ADMIN</span>
+      <button class="btn ghost" onclick="toast('Prototype — no session behind this button','ok')">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<main class="page">
+  <div class="page-head">
+    <div>
+      <h1 id="pgTitle">Control Tower</h1><span class="tag" id="pgChip">NETWORK</span>
+      <div class="page-sub" id="pgSub">—</div>
+    </div>
+    <div class="page-actions">
+      <div class="chip" id="periodChip"></div>
+      <button class="btn primary" onclick="toast('Magento incremental sync queued — orders, items, dismissals, store attribution','ok')">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>Sync Magento
+      </button>
+      <button class="btn" onclick="go('activities')">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>New activity
+      </button>
+    </div>
+  </div>
+  <div id="view"></div>
+</main>
+
+<div class="scrim" id="scrim" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-h"><div class="flex1"><h2 id="dTitle">—</h2><div class="sub" id="dSub">—</div></div><div class="x" onclick="closeDrawer()">✕</div></div>
+  <div class="drawer-b" id="dBody"></div>
+</div>
+<div class="toast" id="toast"><span id="toastIcon">✓</span><span id="toastMsg"></span></div>
+<script>
+/* ============================================================
+   CVM CONTROL TOWER — synthetic but internally consistent data.
+   Every index, decomposition and money figure is computed from the
+   generation functions below, so the screens reconcile.
+   ============================================================ */
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+var rnd = mulberry32(20261104);
+function rf(a,b){return a+rnd()*(b-a)}
+function ri(a,b){return a+Math.floor(rnd()*(b-a+1))}
+function pick(a){return a[Math.floor(rnd()*a.length)]}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function r4(x){return Math.round(x*10000)/10000}
+function r2(x){return Math.round(x*100)/100}
+function tint(hex,a){var h=hex.replace('#','');return 'rgba('+parseInt(h.substr(0,2),16)+','+parseInt(h.substr(2,2),16)+','+parseInt(h.substr(4,2),16)+','+a+')'}
+
+/* ---------- formatting ---------- */
+function egp(v,d){ if(Math.abs(v)>=1e6) return 'EGP '+(v/1e6).toFixed(d===undefined?2:d)+'M';
+  if(Math.abs(v)>=1e3) return 'EGP '+(v/1e3).toFixed(d===undefined?1:d)+'k';
+  return 'EGP '+Math.round(v).toLocaleString('en-US'); }
+function n0(v){return Math.round(v).toLocaleString('en-US')}
+function pc(x,d){return (x*100).toFixed(d===undefined?1:d)+'%'}
+function pt(x,d){return (x>=0?'+':'')+x.toFixed(d===undefined?1:d)}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+
+/* ---------- the index ---------- */
+var WT = {con:0.40, frq:0.20, val:0.25, bse:0.15};
+var BASE = {con:0.628, frq:2.35, val:760, bse:0.402};   // FY2026 H1 group baseline = 100
+
+function cvmOf(c,f,v,b){
+  return 100*Math.pow(c/BASE.con,WT.con)*Math.pow(f/BASE.frq,WT.frq)
+            *Math.pow(v/BASE.val,WT.val)*Math.pow(b/BASE.bse,WT.bse);
+}
+/* exact log decomposition in index points; the four terms sum to ΔCVM */
+function decomp(p,c){
+  var prev=cvmOf(p.con,p.frq,p.val,p.bse), out={};
+  ['con','frq','val','bse'].forEach(function(k){ out[k]=prev*WT[k]*Math.log(c[k]/p[k]); });
+  return out;
+}
+
+/* ---------- dimensions ---------- */
+var AREAS=[
+  {id:'AR1',name:'Nasr City'},{id:'AR2',name:'Heliopolis'},{id:'AR3',name:'Maadi'},
+  {id:'AR4',name:'Giza & 6th of October'},{id:'AR5',name:'New Cairo'},{id:'AR6',name:'Alexandria'}
+];
+var STAGE_KEYS=['S0','S1','S2','S3','S4','S5','S6'];
+var STAGE_NAMES={S0:'Registered, no order',S1:'New (1 order)',S2:'Developing (2)',S3:'Active',S4:'At risk',S5:'Churned',S6:'Lost'};
+var STAGE_TREAT={S0:'T1',S1:'T2',S2:'T2',S3:'T3',S4:'T4',S5:'T4',S6:'T4'};
+var TIERS=['VIP','A','B','C','D'];
+var TIER_RULE={VIP:'AOV ≥ 3,000',A:'1,500 – 2,999',B:'1,000 – 1,499',C:'500 – 999',D:'< 500'};
+var TREAT={
+  T1:{name:'New demand',color:'#1E7A8C',stages:'S0',kpi:'Registration → first order'},
+  T2:{name:'Activate new',color:'#2F5FB0',stages:'S1–S2',kpi:'Second order by day 14/28'},
+  T3:{name:'Push frequency',color:'#2F9E66',stages:'S3',kpi:'Continuation · orders per active'},
+  T4:{name:'Poke & recover',color:'#9B1612',stages:'S4–S6',kpi:'Rescue rate · reactivation'}
+};
+
+var STORE_DEFS=[
+  ['S01','Nasr City — Abbas El Akkad','AR1','Supermarket'],
+  ['S02','Nasr City — Makram Ebeid','AR1','Express'],
+  ['S03','Heliopolis — Merghany','AR2','Supermarket'],
+  ['S04','Heliopolis — El Hegaz','AR2','Express'],
+  ['S05','Heliopolis — Sheraton','AR2','Hyper'],
+  ['S06','Maadi — Road 9','AR3','Supermarket'],
+  ['S07','Maadi — Zahraa','AR3','Express'],
+  ['S08','Maadi — Degla','AR3','Express'],
+  ['S09','Giza — Dokki','AR4','Supermarket'],
+  ['S10','Giza — Mohandessin','AR4','Supermarket'],
+  ['S11','6th of October — Mall of Arabia','AR4','Hyper'],
+  ['S12','6th of October — Hay Ashir','AR4','Express'],
+  ['S13','New Cairo — Rehab','AR5','Supermarket'],
+  ['S14','New Cairo — Fifth Settlement','AR5','Supermarket'],
+  ['S15','New Cairo — Mivida','AR5','Express'],
+  ['S16','New Cairo — Katameya','AR5','Hyper'],
+  ['S17','Alexandria — Sidi Gaber','AR6','Supermarket'],
+  ['S18','Alexandria — Smouha','AR6','Supermarket'],
+  ['S19','Alexandria — Miami','AR6','Express'],
+  ['S20','Alexandria — San Stefano','AR6','Hyper'],
+  ['S21','Maadi — Sarayat','AR3','Supermarket'],
+  ['S22','Nasr City — City Stars','AR1','Express'],
+  ['S23','Sheikh Zayed — Beverly Hills','AR4','Supermarket'],
+  ['S24','Obour City','AR2','Express']
+];
+
+var WEEK_LABELS=['W34','W35','W36','W37','W38','W39','W40','W41','W42','W43','W44','W45'];
+
+/* ---------- generate stores ---------- */
+var STORES=[];
+(function(){
+  STORE_DEFS.forEach(function(d,idx){
+    var q=rf(0.84,1.14), drift=rf(-0.0035,0.0035), base=Math.round(rf(900,4200)), newRate=rf(0.012,0.028);
+    var c=BASE.con*q, f=BASE.frq*q, v=BASE.val*q, b=BASE.bse*q;
+    var weekly=[];
+    for(var w=0;w<12;w++){
+      c=clamp(c*(1+drift*0.5+rf(-0.013,0.013)),0.40,0.84);
+      f=clamp(f*(1+drift+rf(-0.016,0.016)),1.2,4.6);
+      v=clamp(v*(1+drift*1.3+rf(-0.02,0.02)),330,2150);
+      b=clamp(b*(1+drift*0.4+rf(-0.011,0.011)),0.18,0.62);
+      var active=Math.round(base*b);
+      weekly.push({w:w,con:r4(c),frq:r4(f),val:Math.round(v),bse:r4(b),
+                   cvm:r2(cvmOf(c,f,v,b)),active:active,
+                   newCust:Math.max(4,Math.round(base*newRate*(1+0.0105*w)*(0.94+0.12*rnd()))),
+                   value:Math.round(active*f*v)});
+    }
+    var target=Math.round(rf(94,104));
+    STORES.push({
+      code:d[0], name:d[1], area:d[2], format:d[3], areaName:AREAS.find(function(a){return a.id===d[2]}).name,
+      base:base, target:target, weekly:weekly,
+      guard:{optOut:r4(rf(0.0011,0.0052)), nps:Math.round(rf(19,58)), fulfil:r4(rf(0.883,0.994)),
+             dismiss:r4(rf(0.004,0.047)), complaints:Math.round(rf(2,18)), contact:r4(rf(1.1,3.2))},
+      pl:{share:r4(rf(0.118,0.281)), delta:r4(rf(-0.032,0.036))},
+      manager:pick(['H. Fahmy','M. Rashad','S. Kamel','A. Nabil','D. Shawky','T. Zaki','R. Amer','N. Ghanem']),
+      opened:ri(2014,2024)
+    });
+  });
+})();
+
+/* ---------- story stores ----------
+   The four narrative stores are pinned to explicit curves so the demo
+   tells the same story on every reload. Everything else stays generated. */
+function seg(flatVal,tail){
+  var a=[],i;
+  for(i=0;i<9;i++) a.push(flatVal);
+  for(i=0;i<3;i++) a.push(tail&&tail[i]!==undefined?tail[i]:flatVal);
+  return a;
+}
+function forceStore(code,o){
+  var s=STORES.filter(function(x){return x.code===code})[0], w=s.weekly, i;
+  for(i=0;i<12;i++){
+    if(o.con) w[i].con=r4(o.con[i]);
+    if(o.frq) w[i].frq=r4(o.frq[i]);
+    if(o.val) w[i].val=o.val[i];
+    if(o.bse) w[i].bse=r4(o.bse[i]);
+    if(o.newCust) w[i].newCust=o.newCust[i];
+    w[i].cvm=r2(cvmOf(w[i].con,w[i].frq,w[i].val,w[i].bse));
+    w[i].active=Math.round(s.base*w[i].bse);
+    w[i].value=Math.round(w[i].active*w[i].frq*w[i].val);
+  }
+  if(o.target) s.target=o.target;
+  if(o.guard) Object.keys(o.guard).forEach(function(k){ s.guard[k]=o.guard[k]; });
+  if(o.pl) Object.keys(o.pl).forEach(function(k){ s.pl[k]=o.pl[k]; });
+}
+
+/* S14 — the acceptance case: new customers up, index down, target missed */
+forceStore('S14',{
+  con:seg(0.618,[0.6007,0.5839,0.5675]),
+  frq:seg(2.40,[2.38,2.36,2.34]),
+  val:seg(700), bse:seg(0.36),
+  newCust:[148,151,155,158,162,166,170,175,179,198,220,245],
+  target:96,
+  guard:{dismiss:0.021,optOut:0.0028,fulfil:0.951,nps:33,complaints:9,contact:2.2},
+  pl:{share:0.164,delta:0.012}
+});
+/* S07 — service-driven decay: dismissal drag, marketing cannot fix it */
+forceStore('S07',{
+  con:seg(0.585,[0.574,0.563,0.551]),
+  frq:seg(2.30),
+  val:seg(720), bse:seg(0.37),
+  newCust:[92,94,95,97,98,99,101,102,104,105,107,108],
+  target:98,
+  guard:{dismiss:0.061,optOut:0.0041,fulfil:0.912,nps:21,complaints:22,contact:2.6},
+  pl:{share:0.142,delta:-0.018}
+});
+/* S11 — acquisition machine above its target but decelerating into a lower tier */
+forceStore('S11',{
+  con:seg(0.655,[0.634,0.614,0.594]),
+  frq:seg(2.45),
+  val:seg(880), bse:seg(0.42),
+  newCust:[210,215,220,226,232,238,244,251,258,281,306,334],
+  target:109,
+  guard:{dismiss:0.026,optOut:0.0033,fulfil:0.958,nps:38,complaints:11,contact:2.4},
+  pl:{share:0.208,delta:0.019}
+});
+/* S21 — quietly excellent, own-brand carrying the base */
+forceStore('S21',{
+  con:seg(0.706,[0.709,0.712,0.715]),
+  frq:seg(2.72,[2.74,2.76,2.78]),
+  val:seg(1040), bse:seg(0.455),
+  newCust:[120,122,124,126,128,130,132,134,136,138,140,142],
+  target:97,
+  guard:{dismiss:0.012,optOut:0.0016,fulfil:0.986,nps:56,complaints:4,contact:1.8},
+  pl:{share:0.304,delta:0.041}
+});
+
+/* ---------- derived per store ---------- */
+var GROUP={};
+function statusOf(cvm,target){
+  var d=cvm-target;
+  if(d>=0) return 'g'; if(d>=-3) return 'w'; if(d>=-8) return 'o'; return 'r';
+}
+function flagsOf(s){
+  var f=[], w=s.weekly, cur=w[11], prev=w[10], m4=w[8];
+  var newMoM=cur.newCust/m4.newCust-1;
+  var cvmMoM=cur.cvm-m4.cvm;
+  var cvmDelta=cur.cvm-prev.cvm;
+  if(newMoM>=0.10 && cvmMoM<=-3) f.push(['Growth masking decay','r']);
+  if((prev.con-cur.con)>=0.05) f.push(['Continuation cliff','r']);
+  var frqDrop=(prev.frq-cur.frq)/prev.frq;
+  if(frqDrop>=0.10 && Math.abs(prev.con-cur.con)<0.02) f.push(['Frequency stall','w']);
+  if(s.guard.dismiss>=0.035 && cur.con<BASE.con && cur.cvm<s.target) f.push(['Dismissal drag','r']);
+  if(s.pl.delta<=-0.03) f.push(['Own-brand erosion','w']);
+  if(s.guard.optOut>0.0045) f.push(['Opt-out risk','w']);
+  return f;
+}
+STORES.forEach(function(s){
+  var c=s.weekly[11], p=s.weekly[10];
+  s.cvm=c.cvm; s.prevCvm=p.cvm; s.delta=r2(c.cvm-p.cvm);
+  s.decomp=decomp(p,c);
+  s.status=statusOf(s.cvm,s.target);
+  s.flags=flagsOf(s);
+  s.value=c.value;
+  s.active=c.active;
+});
+GROUP.totalValue=STORES.reduce(function(a,s){return a+s.value},0);
+GROUP.totalBase=STORES.reduce(function(a,s){return a+s.base},0);
+GROUP.totalActive=STORES.reduce(function(a,s){return a+s.active},0);
+GROUP.cvm=Math.round(STORES.reduce(function(a,s){return a+s.cvm*s.value},0)/GROUP.totalValue*10)/10;
+GROUP.prevCvm=Math.round(STORES.reduce(function(a,s){return a+s.prevCvm*s.value},0)/GROUP.totalValue*10)/10;
+GROUP.offTarget=STORES.filter(function(s){return s.status==='o'||s.status==='r'}).length;
+GROUP.critical=STORES.filter(function(s){return s.status==='r'}).length;
+GROUP.valueAtRisk=STORES.filter(function(s){return s.status==='o'||s.status==='r'})
+  .reduce(function(a,s){return a+s.value*0.18},0);
+GROUP.weeklyPrior=Math.round(STORES.reduce(function(a,s){return a+s.weekly[8].cvm*s.weekly[8].value},0)/GROUP.totalValue*10)/10;
+GROUP.newDelta=STORES.reduce(function(a,s){return a+s.weekly[11].newCust},0)/STORES.reduce(function(a,s){return a+s.weekly[8].newCust},0)-1;
+
+/* ---------- stage × tier matrices ---------- */
+var STAGE_W=[0.17,0.10,0.12,0.25,0.13,0.09,0.14];
+var TIER_W=[0.03,0.09,0.19,0.31,0.38];
+function buildMatrix(base, bias){
+  var m=[],tot=0,t;
+  for(var i=0;i<7;i++){ m[i]=[]; for(var j=0;j<5;j++){ t=Math.round(base*STAGE_W[i]*TIER_W[j]*rf(0.75,1.28)*(bias&&bias[i]?bias[i][j]||1:1)); m[i][j]=t; tot+=t; } }
+  var k=base/tot;
+  for(var i2=0;i2<7;i2++) for(var j2=0;j2<5;j2++) m[i2][j2]=Math.round(m[i2][j2]*k);
+  return m;
+}
+STORES.forEach(function(s){
+  s.matrix=buildMatrix(s.base);
+  s.prevMatrix=buildMatrix(s.base);
+  // story: S14 leaking active customers
+  if(s.code==='S14'){ s.matrix[3][3]=Math.max(40,s.matrix[3][3]-38); s.matrix[4][3]+=41; s.matrix[4][4]+=22; s.matrix[6][2]+=14; }
+  if(s.code==='S07'){ s.matrix[3][2]=Math.max(20,s.matrix[3][2]-24); s.matrix[5][2]+=19; s.matrix[5][3]+=12; }
+});
+var GROUP_MATRIX=(function(){
+  var m=[];for(var i=0;i<7;i++){m[i]=[0,0,0,0,0];}
+  STORES.forEach(function(s){for(var i=0;i<7;i++)for(var j=0;j<5;j++)m[i][j]+=s.matrix[i][j];});
+  return m;
+})();
+var GROUP_PREV=(function(){
+  var m=[];for(var i=0;i<7;i++){m[i]=[0,0,0,0,0];}
+  STORES.forEach(function(s){for(var i=0;i<7;i++)for(var j=0;j<5;j++)m[i][j]+=s.prevMatrix[i][j];});
+  return m;
+})();
+function stageTotal(m,i){return m[i].reduce(function(a,b){return a+b},0)}
+function tierTotal(m,j){return m.reduce(function(a,r){return a+r[j]},0)}
+function matrixTotal(m){return m.reduce(function(a,r){return a+r.reduce(function(x,y){return x+y},0)},0)}
+
+/* ---------- treatment allocation ---------- */
+function allocate(s){
+  var m=s.matrix, val=s.weekly[11].val;
+  var s0=stageTotal(m,0), s1=stageTotal(m,1), s2=stageTotal(m,2), s3=stageTotal(m,3);
+  var s4=stageTotal(m,4), s5=stageTotal(m,5), s6=stageTotal(m,6);
+  var rows=[
+    {t:'T1', addr:s0,            gap:0.034, uplift:0.11, value:val*0.9},
+    {t:'T2', addr:s1+s2,         gap:0.052, uplift:0.14, value:val},
+    {t:'T3', addr:s3,            gap:0.038, uplift:0.08, value:val*1.6},
+    {t:'T4', addr:s4+s5+s6,      gap:0.061, uplift:0.12, value:val*1.2}
+  ];
+  // store-specific gaps so the recommendation is not identical everywhere
+  var seedIdx=STORES.indexOf(s);
+  rows.forEach(function(r,i){
+    r.gap=clamp(r.gap*rf(0.35,1.85),0.004,0.09);
+    r.expected=r.addr*r.gap*r.uplift*r.value;
+    r.cost=r.addr*rf(1.4,6.2);
+    r.score=r.expected-r.cost;
+  });
+  var total=rows.reduce(function(a,r){return a+Math.max(0,r.score)},0)||1;
+  rows.forEach(function(r){ r.share=Math.max(0,r.score)/total; });
+  rows.sort(function(a,b){return b.score-a.score});
+  return rows;
+}
+STORES.forEach(function(s){ s.alloc=allocate(s); s.primary=s.alloc[0].t; });
+
+/* ---------- activities ---------- */
+var ACT_TEMPLATES=[
+  ['T4','At-risk rescue wave — voice then SMS','Declining basket, silence 14–27d','S4','A–C','Voice+SMS','No-offer reminder'],
+  ['T4','Churn recovery — incentive ladder','No offer first, incentive on non-response','S5','B–C','SMS','Incentive ladder'],
+  ['T4','Lost win-back — value-first','Test no offer vs EGP 100','S6','A–B','SMS+Push','Incentive ladder'],
+  ['T3','Replenishment push — usual items','Basket cadence reminder','S3','A–B','Push','No offer'],
+  ['T3','Own-brand swap nudge','Convert own-brand trial','S3','B–D','Push+In-app','Category offer'],
+  ['T3','Scheduled-order conversion','On-demand only, 3+ orders','S3','A–C','Push+SMS','Free slot'],
+  ['T2','Second order by day 14','First basket recommendations','S1','A–D','Push','No offer'],
+  ['T2','Third order acceleration','Cross-category after second order','S2','B–D','Push+In-app','Category offer'],
+  ['T2','Scheduled conversion — new customers','Habit formation at day 21','S2','A–C','SMS','Free slot'],
+  ['T1','Registration to first order','Welcome push day 1','S0','A–D','Push','No offer'],
+  ['T1','Catchment leaflet push','Offline-to-online in catchment','S0','C–D','SMS','Leaflet items'],
+  ['T1','Abandoned cart recovery','Cart left 4h','S0','A–C','Push+SMS','No offer']
+];
+var CHANNELS=['Voice+SMS','Push','SMS','Push+In-app','SMS+Push','Email'];
+var OWNERS=['H. Fahmy','M. Rashad','S. Kamel','A. Nabil','D. Shawky','T. Zawil'];
+var ACTIVITIES=[];
+(function(){
+  for(var i=0;i<46;i++){
+    var tpl=ACT_TEMPLATES[i%ACT_TEMPLATES.length];
+    var st=STORES[i%STORES.length];
+    var week=35+(i%11);
+    var aud=Math.round(rf(900,9500));
+    var hold=week<40?0.10:(rnd()<0.25?0:0.1);
+    var contacts=Math.round(aud*(1-hold));
+    var convRate=rf(0.031,0.148);
+    var conv=Math.round(contacts*convRate);
+    var rev=Math.round(conv*st.weekly[11].val*rf(1.1,2.6));
+    var incr=hold>0?Math.round(rev*rf(0.12,0.42)):null;
+    var cost=Math.round(contacts*rf(0.6,5.4));
+    var status = week===44?'running' : (week===45?'planned' : (i%17===0?'measured':'completed'));
+    ACTIVITIES.push({
+      id:'ACT-'+(3200+i), name:tpl[1], treatment:tpl[0], hypothesis:tpl[2],
+      store:st.code, storeName:st.name, stage:tpl[3], tiers:tpl[4],
+      channel:tpl[5], offer:tpl[6], week:'W'+week, audience:aud, holdout:hold,
+      contacts:contacts, conversions:conv, revenue:rev, incremental:incr, cost:cost,
+      component:{T1:'bse',T2:'con',T3:'frq',T4:'con'}[tpl[0]],
+      owner:pick(OWNERS), status:status,
+      test:i%7===0?('TST-'+(101+i%9)):null
+    });
+  }
+})();
+function actStatus(s){return {measured:['g','Measured'],completed:['c','Completed'],running:['b','Running'],planned:['n','Planned']}[s]||['n',s]}
+
+/* ---------- tests ---------- */
+var TESTS=[
+  {id:'TST-101',name:'No-offer reminder vs EGP 100 incentive',treatment:'T4',stores:'S07, S14 (A–C, S5)',metric:'28-day reactivation',status:'running',cells:3,n:18400,mde:'2.5 pts',start:'W42',end:'W47',result:null,decision:null,hyp:'A no-offer reminder converts enough to make the incentive unnecessary on A–C.'},
+  {id:'TST-102',name:'Voice-first vs SMS-first on A tier',treatment:'T4',stores:'S03, S09, S17',metric:'14-day rescue rate',status:'running',cells:2,n:6200,mde:'3.0 pts',start:'W43',end:'W49',result:null,decision:null,hyp:'Voice earns its cost only above a basket threshold.'},
+  {id:'TST-103',name:'Free delivery slot vs 10% off for scheduled conversion',treatment:'T3',stores:'All (B–C, S3)',metric:'scheduled share',status:'running',cells:3,n:21500,mde:'1.8 pts',start:'W40',end:'W48',result:null,decision:null,hyp:'A slot is worth more than a discount for a weekly shopper.'},
+  {id:'TST-104',name:'Day-14 vs day-21 second-order push',treatment:'T2',stores:'S01, S13, S18',metric:'second order @28d',status:'measured',cells:3,n:14200,mde:'2.0 pts',start:'W34',end:'W41',result:'Day 14 +4.1 pts (p=0.02)',decision:'adopt',conf:0.96,hyp:'Earlier is better in grocery cadence.'},
+  {id:'TST-105',name:'Own-brand swap nudge — B/C tier',treatment:'T3',stores:'S05, S11, S20',metric:'Own-brand share of items',status:'measured',cells:3,n:9600,mde:'3.0 pts',start:'W33',end:'W40',result:'+6.8 pts own-brand share, −1.2% basket',decision:'adopt',conf:0.94,hyp:'Own-brand trial does not cost basket value at B–C.'},
+  {id:'TST-106',name:'EGP 100 vs EGP 200 win-back voucher (lost)',treatment:'T4',stores:'S06, S10, S16',metric:'reactivation',status:'measured',cells:3,n:24800,mde:'2.2 pts',start:'W31',end:'W39',result:'No significant difference',decision:'reject',conf:0.91,hyp:'Deeper voucher reactivates more lost customers.'},
+  {id:'TST-107',name:'Leaflet item SMS in catchment (new demand)',treatment:'T1',stores:'S02, S12, S19',metric:'registration → first order',status:'measured',cells:2,n:11300,mde:'2.6 pts',start:'W30',end:'W38',result:'+3.4 pts (p=0.04)',decision:'adopt',conf:0.93,hyp:'Leaflet content works as an SMS hook in catchment.'},
+  {id:'TST-108',name:'Holdout coverage at 20% vs 10%',treatment:'T4',stores:'S08, S15',metric:'measurement precision',status:'measured',cells:2,n:8800,mde:'—',start:'W36',end:'W43',result:'20% halves CI width',decision:'adopt',conf:0.99,hyp:'For high-variance SMS waves, 20% holdout pays for itself.'},
+  {id:'TST-109',name:'Dismissal apology voucher after bad order',treatment:'T4',stores:'S07, S11 (A–B, S4)',metric:'next-order rate',status:'planned',cells:2,n:0,mde:'4.0 pts',start:'W46',end:'W52',result:null,decision:null,hyp:'Service recovery beats any marketing message after a dismissal-heavy order.'}
+];
+
+/* ---------- DS insights ---------- */
+var INSIGHTS=[
+  {id:'INS-41',store:'S07',statement:'Dismissal rate above 4% is followed by a 6-point continuation drop three weeks later in this store.',signal:'Dismissal rate',component:'con',lag:3,r:0.61,n:41,conf:0.93,model:'corr-v2'},
+  {id:'INS-42',store:'Group',statement:'Fulfilment below 93% predicts a CVM index fall of 2.1 points in the following four weeks, across all stores.',signal:'Fulfilment rate',component:'cvm',lag:4,r:0.54,n:24,conf:0.88,model:'corr-v2'},
+  {id:'INS-43',store:'S14',statement:'New-customer volume is up 18% while basket value of retained customers is flat — growth is arriving at a lower value tier.',signal:'First orders',component:'con',lag:0,r:-0.47,n:12,conf:0.81,model:'diag-v1'},
+  {id:'INS-44',store:'Group',statement:'Complaint rate above 12 per 1,000 orders precedes a frequency drop by two weeks; effect is strongest in the C–D tier.',signal:'Complaints',component:'frq',lag:2,r:0.49,n:34,conf:0.85,model:'corr-v2'},
+  {id:'INS-45',store:'S21',statement:'Scheduled-order customers show 2.4× the continuation rate of on-demand customers at the same tier.',signal:'Order type',component:'con',lag:0,r:0.72,n:52,conf:0.97,model:'seg-v3'},
+  {id:'INS-46',store:'Group',statement:'Own-brand buyers retain 11% better after month three, holding tier constant.',signal:'Own-brand share',component:'bse',lag:0,r:0.38,n:48,conf:0.79,model:'seg-v3'},
+  {id:'INS-47',store:'S11',statement:'Acquisition is concentrated in D tier; D-tier customers acquire 42% cheaper but retain 3.1× worse — the store is buying volume.',signal:'First-order tier mix',component:'val',lag:0,r:-0.58,n:12,conf:0.86,model:'diag-v1'}
+];
+
+/* ---------- brands & migration ---------- */
+var BRANDS=['Juhayna','Domty','Edita','Americana','Nestlé','PepsiCo','Unilever','Seoudi PL'];
+var MIGRATION=(function(){
+  var out=[];
+  BRANDS.forEach(function(from){
+    BRANDS.forEach(function(to){
+      if(from===to) return;
+      var v=Math.round(rf(0,340));
+      if(v<45) return;
+      out.push({from:from,to:to,count:v,value:Math.round(v*rf(180,640))});
+    });
+  });
+  out.sort(function(a,b){return b.count-a.count});
+  return out;
+})();
+
+/* ---------- activity calendar ---------- */
+function actsForWeek(w){return ACTIVITIES.filter(function(a){return a.week===w})}
+
+/* ============================================================
+   SHELL
+   ============================================================ */
+var ICON={
+ tower:'<path d="M12 3 3 8v13h18V8l-9-5Z"/><path d="M9 21v-7h6v7"/>',
+ stores:'<path d="M3 9h18l-1.5-5H4.5L3 9Z"/><path d="M4 9v11h16V9"/><path d="M9 20v-6h6v6"/>',
+ movement:'<path d="M4 19V5"/><path d="M4 19h16"/><path d="m7 15 4-5 3 3 5-7"/>',
+ activities:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18M8 14h3M8 17h6"/>',
+ targets:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/>',
+ segments:'<path d="M3 5h18l-7 8v6l-4 2v-8L3 5Z"/>',
+ tests:'<path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4A2 2 0 0 0 19 18L14 9V3"/><path d="M7.5 15h9"/>',
+ signals:'<path d="M3 12h3l3-7 3 14 3-9 2 2h4"/>',
+ admin:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2 2 2 0 1 1-4 0 1.7 1.7 0 0 0-2.9-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 3 15a2 2 0 1 1 0-4 1.7 1.7 0 0 0 1.2-2.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 10 4.6a2 2 0 1 1 4 0 1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1A1.7 1.7 0 0 0 21 11a2 2 0 1 1 0 4 1.7 1.7 0 0 0-1.6 0Z"/>',
+ settings:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>'
+};
+var NAV=[
+ {id:'tower',label:'Control Tower'},
+ {id:'stores',label:'Branches'},
+ {id:'movement',label:'Movement'},
+ {id:'activities',label:'Activities',cnt:function(){return ACTIVITIES.filter(function(a){return a.status==='running'}).length}},
+ {id:'targets',label:'Targets'},
+ {id:'segments',label:'Segments'},
+ {id:'tests',label:'Tests',cnt:function(){return TESTS.filter(function(t){return t.status==='running'}).length}},
+ {id:'signals',label:'Signals'},
+ {id:'admin',label:'Segment Admin'},
+ {id:'settings',label:'Settings'}
+];
+var TITLES={
+ tower:['Control Tower','NETWORK','Group CVM index, branches needing attention, and this week\'s flags'],
+ stores:['All Branches','BRANCH VIEW','Every branch against its CVM target — sorted by where the money is'],
+ movement:['Lifecycle Movement','NETWORK','Where value moved last week, by stage and value tier'],
+ activities:['Activities Log','ACTIONS','Every intervention, planned or executed, with its measured result'],
+ targets:['Targets & Planning','PLAN','Target vs plan vs actual, per branch, per period'],
+ segments:['Exceptional Segments','COMMERCIAL','Own-brand, brand switching, recurring baskets and service-failure exposure'],
+ tests:['Test Registry','EXPERIMENTS','Hypotheses, results and the uplift library that prices every decision'],
+ signals:['Signals & Correlations','DS LAYER','What moved before CVM moved — the Data Science layer\'s weekly output'],
+ admin:['Segment Admin','GOVERNANCE','Data Science owns definitions. The system owns the guardrails.'],
+ settings:['Settings & Weights','CONFIG','Index weights, thresholds, contact policy, hierarchy']
+};
+var state={view:'tower', actTab:'all', segTab:'pl', movTier:'all'};
+
+function buildNav(){
+  var h='';
+  NAV.forEach(function(n){
+    var c=n.cnt?n.cnt():null;
+    h+='<a data-nav="'+n.id+'" class="'+(state.view===n.id?'on':'')+'" onclick="go(\''+n.id+'\')" title="'+TITLES[n.id][1]+'">'+
+       '<span>'+n.label+'</span>'+(c?'<span class="cnt">'+c+'</span>':'')+'</a>';
+  });
+  document.getElementById('nav').innerHTML=h;
+}
+function go(v){
+  state.view=v;
+  document.getElementById('pgTitle').textContent=TITLES[v][0];
+  document.getElementById('pgChip').textContent=TITLES[v][1];
+  document.getElementById('pgSub').textContent=TITLES[v][2];
+  buildNav(); window.scrollTo(0,0); render();
+}
+function render(){
+  var f={tower:vTower,stores:vStores,movement:vMovement,activities:vActivities,targets:vTargets,
+         segments:vSegments,tests:vTests,signals:vSignals,admin:vAdmin,settings:vSettings}[state.view];
+  document.getElementById('view').innerHTML=f?f():'<div class="empty">—</div>';
+  if(state.view==='settings') setTimeout(drawSliders,0);
+}
+function toast(m,k){
+  var t=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=m;
+  document.getElementById('toastIcon').textContent=k==='err'?'✕':(k==='ok'?'✓':'ℹ');
+  document.getElementById('toastIcon').style.color=k==='err'?'#F0A9A2':(k==='ok'?'#7BD3A6':'#9FD8CD');
+  t.classList.add('on'); clearTimeout(window.__t); window.__t=setTimeout(function(){t.classList.remove('on')},4000);
+}
+function openDrawer(title,sub,body){
+  document.getElementById('dTitle').textContent=title;
+  document.getElementById('dSub').textContent=sub;
+  document.getElementById('dBody').innerHTML=body;
+  document.getElementById('scrim').classList.add('on');
+  document.getElementById('drawer').classList.add('on');
+}
+function closeDrawer(){
+  document.getElementById('scrim').classList.remove('on');
+  document.getElementById('drawer').classList.remove('on');
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeDrawer()});
+
+/* ============================================================
+   SHARED WIDGETS
+   ============================================================ */
+function spark(series,w,h,color,area){
+  var mn=Math.min.apply(null,series),mx=Math.max.apply(null,series),rg=(mx-mn)||1,i;
+  var pts=[]; for(i=0;i<series.length;i++) pts.push([(i/(series.length-1))*w, h-((series[i]-mn)/rg)*(h-6)-3]);
+  var d=''; for(i=0;i<pts.length;i++) d+=(i?'L':'M')+pts[i][0].toFixed(1)+' '+pts[i][1].toFixed(1);
+  var g=area?'<path d="'+d+' L'+w+' '+h+' L0 '+h+' Z" fill="'+color+'" opacity="0.13"/>':'';
+  return '<svg width="'+w+'" height="'+h+'" preserveAspectRatio="none"><g>'+g+
+    '<path d="'+d+'" fill="none" stroke="'+color+'" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></g></svg>';
+}
+function statusPill(k){
+  var m={g:['g','On target'],w:['w','Watch'],o:['o','Off target'],r:['r','Critical']};
+  var x=m[k]||['n',k];
+  return '<span class="st '+x[0]+'"><i></i>'+x[1]+'</span>';
+}
+function flagsChips(s){
+  if(!s.flags.length) return '<span class="muted small">—</span>';
+  return s.flags.slice(0,2).map(function(f){
+    return '<span class="flag'+(f[1]==='w'?' w':'')+'">'+f[0]+'</span>';
+  }).join(' ');
+}
+function treatChip(t){
+  var d=TREAT[t];
+  return '<span class="st" style="color:'+d.color+';background:'+d.color+'1a;border-color:'+d.color+'40"><i></i>'+t+' '+d.name+'</span>';
+}
+function waterfall(s){
+  var d=s.decomp, mx=Math.max(0.4,Math.abs(d.con),Math.abs(d.frq),Math.abs(d.val),Math.abs(d.bse));
+  var rows=[['Continuation','con'],['Frequency','frq'],['Basket value','val'],['Base health','bse']];
+  var h='<div class="wf">';
+  rows.forEach(function(r){
+    var v=d[r[1]], w=Math.abs(v)/mx*46, pos=v>=0;
+    h+='<div class="wf-row"><div class="n">'+r[0]+'</div>'+
+       '<div class="wf-track">'+
+         '<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line2)"></div>'+
+         '<div style="position:absolute;top:4px;bottom:4px;border-radius:3px;'+
+            (pos?('left:50%;width:'+w+'%;background:var(--g)'):('left:'+(50-w)+'%;width:'+w+'%;background:var(--r)'))+
+         '"></div>'+
+       '</div>'+
+       '<div class="v" style="color:'+(v>=0?'var(--g)':'var(--r)')+'">'+pt(v,2)+'</div></div>';
+  });
+  return h+'</div>';
+}
+function dominantComponent(s){
+  var d=s.decomp, best=null;
+  Object.keys(d).forEach(function(k){ if(best===null||d[k]<d[best]) best=k; });
+  if(d[best]>=0) Object.keys(d).forEach(function(k){ if(d[k]>d[best]) best=k; });
+  return {key:best, value:d[best], label:{con:'continuation',frq:'frequency',val:'basket value',bse:'base health'}[best]};
+}
+function kpiCard(lbl,val,delta,dir,series,color){
+  return '<div class="kpi"><div class="lbl">'+lbl+'</div><div class="val">'+val+'</div>'+
+    '<div class="delta"><span class="'+(dir==='up'?'up':'down')+'">'+(dir==='up'?'▲':'▼')+'</span> '+delta+'</div>'+
+    '<div class="spark">'+spark(series,84,38,color,true)+'</div></div>';
+}
+
+/* ============================================================
+   SCREEN 1 — CONTROL TOWER
+   ============================================================ */
+function groupSeries(){
+  return WEEK_LABELS.map(function(_,w){
+    var v=STORES.reduce(function(a,s){return a+s.weekly[w].value},0);
+    return STORES.reduce(function(a,s){return a+s.weekly[w].cvm*s.weekly[w].value},0)/v;
+  });
+}
+function vTower(){
+  var gs=groupSeries();
+  var attn=STORES.filter(function(s){return s.status==='r'||s.status==='o'})
+    .sort(function(a,b){ return (b.target-b.cvm)*b.value - (a.target-a.cvm)*a.value; }).slice(0,8);
+  var allFlags=[];
+  STORES.forEach(function(s){ s.flags.forEach(function(f){ allFlags.push({store:s,flag:f}); }); });
+  var weekActs=WEEK_LABELS.map(function(w){ return actsForWeek(w); });
+
+  var h='';
+
+  /* KPI band */
+  var cvmDelta=r2(GROUP.cvm-GROUP.prevCvm);
+  h+='<div class="grid g4" style="margin-bottom:12px">'+
+    kpiCard('Group CVM index',GROUP.cvm.toFixed(1),pt(cvmDelta,1)+' pts vs W44',cvmDelta>=0?'up':'down',gs,'var(--acc)')+
+    kpiCard('Branches off target',GROUP.offTarget+' <small>/ '+STORES.length+'</small>',GROUP.critical+' critical',GROUP.critical?'down':'up',[3,4,4,5,6,5,6,7,6,7,7,GROUP.critical],'var(--o)')+
+    kpiCard('Value at risk',egp(GROUP.valueAtRisk),'18% of off-target base value','down',gs.map(function(x){return 1/x}),'var(--r)')+
+    kpiCard('New customer growth',(GROUP.newDelta>=0?'+':'')+pc(GROUP.newDelta,1),'vs CVM '+pt(cvmDelta,1)+' pts',GROUP.newDelta>=0?'up':'down',gs,'var(--cyan)')+
+  '</div>';
+
+  var masked=STORES.filter(function(s){return s.flags.some(function(f){return f[0]==='Growth masking decay'})});
+  h+='<div class="'+(masked.length?'warnbox':'okbox')+'" style="margin-bottom:12px"><span>'+(masked.length?'⚑':'✓')+'</span><span>'+
+     (masked.length
+       ? '<b>Growth masking decay in '+masked.length+' branch'+(masked.length>1?'es':'')+':</b> '+
+         masked.map(function(s){ return s.code+' (first orders '+pt((s.weekly[11].newCust/s.weekly[8].newCust-1)*100,0)+'% over four weeks, index '+pt(s.cvm-s.weekly[8].cvm,1)+' pts)'; }).join(' · ')+
+         '. Group first orders are up '+pc(GROUP.newDelta,1)+' and the group index is '+(GROUP.cvm>=GROUP.weeklyPrior?'flat':'falling')+
+         ', because the healthy majority is carrying the average. This is what an average hides — and the reason the tower ranks by gap × value.'
+       : 'No store shows the masking signature this week: acquisition and retention are moving together everywhere.')+
+     '</span></div>';
+
+  /* needs attention + flags */
+  h+='<div class="grid g23" style="margin-bottom:12px">';
+  h+='<div class="card pad0"><div class="card-h" style="padding:14px 14px 0"><h3>Needs attention this week</h3>'+
+     '<div class="sub">ranked by gap-to-target × base value, not by raw index</div>'+
+     '<div class="right"><button class="btn sm" onclick="go(\'stores\')">All stores</button></div></div>'+
+     '<table><thead><tr><th>Branch</th><th class="tr">CVM</th><th class="tr">Δ</th><th class="tr">Target</th>'+
+     '<th class="tr">Gap</th><th>Primary treatment</th><th>Why</th></tr></thead><tbody>';
+  attn.forEach(function(s){
+    var dom=dominantComponent(s), gap=r2(s.cvm-s.target);
+    h+='<tr class="cl" onclick="openStore(\''+s.code+'\')">'+
+      '<td><div class="tname">'+s.code+' · '+esc(s.name)+'</div><div class="tsub">'+s.areaName+' · '+s.format+' · '+n0(s.base)+' customers</div></td>'+
+      '<td class="tr num" style="font-weight:700">'+s.cvm.toFixed(1)+'</td>'+
+      '<td class="tr num" style="color:'+(s.delta>=0?'var(--g)':'var(--r)')+'">'+pt(s.delta,1)+'</td>'+
+      '<td class="tr num muted">'+s.target+'</td>'+
+      '<td class="tr num" style="color:var(--o)">'+pt(gap,1)+'</td>'+
+      '<td>'+treatChip(s.primary)+'</td>'+
+      '<td class="small muted">'+dom.label+' '+pt(dom.value,1)+' pts</td></tr>';
+  });
+  h+='</tbody></table></div>';
+
+  h+='<div class="card pad0"><div class="card-h" style="padding:14px 14px 0"><h3>Flags raised</h3>'+
+     '<div class="sub">'+allFlags.length+' across '+new Set(allFlags.map(function(f){return f.store.code})).size+' stores</div></div>'+
+     '<div style="max-height:340px;overflow-y:auto"><table><tbody>';
+  allFlags.slice(0,12).forEach(function(f){
+    h+='<tr class="cl" onclick="openStore(\''+f.store.code+'\')"><td>'+
+      '<span class="flag'+(f.flag[1]==='w'?' w':'')+'">'+f.flag[0]+'</span>'+
+      '<div class="tsub" style="margin-top:3px">'+f.store.code+' · '+esc(f.store.name)+'</div></td></tr>';
+  });
+  h+='</tbody></table></div></div>';
+  h+='</div>';
+
+  /* calendar + tests */
+  h+='<div class="grid g34">';
+
+  /* activity calendar */
+  h+='<div class="card"><div class="card-h"><h3>Activity calendar</h3><div class="sub">last 11 weeks + this week · by treatment</div>'+
+     '<div class="right">'+['T1','T2','T3','T4'].map(function(t){
+       return '<span class="legend" style="margin-left:8px"><i style="background:'+TREAT[t].color+'"></i>'+t+'</span>';
+     }).join('')+'</div></div>';
+  h+='<div style="display:grid;grid-template-columns:56px repeat(12,1fr);gap:3px">';
+  h+='<div></div>';
+  WEEK_LABELS.forEach(function(w){ h+='<div style="text-align:center;font-size:9px;color:var(--tx3);font-weight:700">'+w.replace('W','')+'</div>'; });
+  ['T1','T2','T3','T4'].forEach(function(t){
+    h+='<div style="font-size:9.5px;color:var(--tx3);font-weight:700;display:flex;align-items:center">'+t+'</div>';
+    WEEK_LABELS.forEach(function(w){
+      var acts=actsForWeek(w).filter(function(a){return a.treatment===t});
+      var c=acts.length;
+      var al=c?Math.min(0.14+c*0.17,0.82):0;
+      var bg=c?tint(TREAT[t].color,al):'var(--panel2)';
+      var fg=c?(al>0.5?'#FFFFFF':TREAT[t].color):'var(--tx3)';
+      h+='<div title="'+w+' · '+t+' · '+c+' activities" style="height:27px;border-radius:5px;background:'+bg+
+         ';display:grid;place-items:center;font-size:10px;font-weight:800;color:'+fg+';border:1px solid '+(c?tint(TREAT[t].color,Math.min(al+0.2,1)):'var(--line)')+'">'+(c||'')+'</div>';
+    });
+  });
+  h+='</div>';
+  h+='<div class="small muted" style="margin-top:10px">Weeks 45 shows '+actsForWeek('W45').length+' activities planned. Gaps with no coverage are visible on purpose — an empty cell is an unmade decision.</div>';
+  h+='</div>';
+
+  /* test board */
+  h+='<div class="card"><div class="card-h"><h3>Running tests</h3><div class="sub">results blinded until minimum sample</div></div>';
+  TESTS.filter(function(t){return t.status==='running'}).forEach(function(t){
+    var a=parseInt(t.start.replace('W','')), b=parseInt(t.end.replace('W',''));
+    var prog=clamp((45-a)/(b-a),0,1);
+    h+='<div style="margin-bottom:11px">'+
+      '<div class="spread" style="margin-bottom:3px"><span class="small" style="font-weight:600">'+esc(t.name)+'</span>'+
+      '<span class="mono small muted">'+t.start+'→'+t.end+'</span></div>'+
+      '<div class="bar" style="height:5px"><i style="width:'+(prog*100).toFixed(0)+'%;background:var(--acc)"></i></div>'+
+      '<div class="spread" style="margin-top:3px"><span class="tsub">'+t.id+' · n='+n0(t.n)+' · MDE '+t.mde+'</span>'+
+      '<span class="tsub">'+Math.round(prog*100)+'%</span></div></div>';
+  });
+  h+='<button class="btn sm" style="width:100%;justify-content:center" onclick="go(\'tests\')">Open test registry</button></div>';
+  h+='</div>';
+
+  /* sync strip */
+  h+='<div class="card" style="margin-top:12px"><div class="card-h"><h3>Last Magento sync</h3>'+
+     '<div class="sub">Monday 4 Nov 2026 · 02:14 · W45</div>'+
+     '<div class="right"><span class="st g"><i></i>Passed 4 of 5 gates</span></div></div>'+
+     '<div class="grid g4" style="gap:10px">'+
+     [['Orders ingested',n0(41208),'stores attributed 99.7%'],
+      ['Order lines with brand',n0(186430),'Own-brand flag 98.9%'],
+      ['Dismissal data',n0(39870),'96.7% of orders'],
+      ['Customers scored',n0(GROUP.totalBase),'movement computed']]
+     .map(function(x){return '<div style="background:var(--panel2);border-radius:8px;padding:9px 11px"><div class="small muted">'+x[0]+'</div><div class="num" style="font-size:15px;font-weight:700;margin-top:2px">'+x[1]+'</div><div class="tsub">'+x[2]+'</div></div>'}).join('')+
+     '</div>'+
+     '<div class="warnbox" style="margin-top:10px"><span>⚠</span><span><b>Gate failing:</b> item-level completeness 97.4% (threshold 98%) on 2 stores — exceptional-segment panels for S12 and S19 are disabled until next sync.</span></div>'+
+     '<div class="tsub" style="margin-top:9px">Prototype note: all 24 stores, 12 weeks of history, activities, tests and signals here are synthetic and internally consistent — every index, decomposition and money figure is computed live from the same generated data. No production data is used.</div>'+
+     '</div>';
+  return h;
+}
+
+/* ============================================================
+   SCREEN 2 — STORE SCORECARDS
+   ============================================================ */
+var storeFilter='all';
+function urgency(s){ return (s.target - s.cvm) * (s.value/1e6); }
+function vStores(){
+  var list=STORES.slice().sort(function(a,b){ return urgency(b)-urgency(a); });
+  if(storeFilter==='off') list=list.filter(function(s){return s.status==='o'||s.status==='r'});
+  if(storeFilter==='flag') list=list.filter(function(s){return s.flags.length>0});
+
+  var h='';
+  /* area rollup */
+  h+='<div class="grid" style="grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:12px">';
+  AREAS.forEach(function(a){
+    var ss=STORES.filter(function(s){return s.area===a.id});
+    var v=ss.reduce(function(x,s){return x+s.value},0);
+    var cvm=ss.reduce(function(x,s){return x+s.cvm*s.value},0)/v;
+    var off=ss.filter(function(s){return s.status==='o'||s.status==='r'}).length;
+    var c=statusOf(cvm, ss.reduce(function(x,s){return x+s.target},0)/ss.length);
+    h+='<div class="card" style="padding:10px 12px;cursor:pointer" onclick="toast(\'Area filter: '+esc(a.name)+'\',\'ok\')">'+
+      '<div class="small muted" style="font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;font-weight:700">'+esc(a.name)+'</div>'+
+      '<div class="row" style="justify-content:space-between;margin-top:4px"><span class="num" style="font-size:18px;font-weight:700">'+cvm.toFixed(1)+'</span>'+
+      '<span class="st '+c+'"><i></i>'+(off?off+' off':'ok')+'</span></div>'+
+      '<div class="tsub">'+ss.length+' stores · '+egp(v)+'/wk</div></div>';
+  });
+  h+='</div>';
+
+  h+='<div class="spread" style="margin-bottom:10px">'+
+    '<div class="tabs">'+
+      [['all','All stores'],['off','Off target'],['flag','Flagged']].map(function(t){
+        return '<button class="'+(storeFilter===t[0]?'on':'')+'" onclick="storeFilter=\''+t[0]+'\';render()">'+t[1]+'</button>';
+      }).join('')+'</div>'+
+    '<div class="row small muted">Sorted by gap-to-target × base value · <span class="mono">'+list.length+' stores</span></div></div>';
+
+  h+='<div class="card pad0"><table><thead><tr>'+
+    '<th>Branch</th><th class="tr">CVM</th><th class="tr">Δ WoW</th><th class="tr">Target</th><th class="tr">Gap</th>'+
+    '<th class="tr">CON</th><th class="tr">FRQ</th><th class="tr">VAL</th><th class="tr">BSE</th>'+
+    '<th>Status</th><th>Primary</th><th>Flags</th></tr></thead><tbody>';
+  list.forEach(function(s){
+    var c=s.weekly[11], gap=r2(s.cvm-s.target);
+    h+='<tr class="cl" onclick="openStore(\''+s.code+'\')">'+
+      '<td><div class="tname">'+s.code+' · '+esc(s.name)+'</div><div class="tsub">'+s.areaName+' · '+s.format+'</div></td>'+
+      '<td class="tr num" style="font-weight:700;font-size:12.5px">'+s.cvm.toFixed(1)+'</td>'+
+      '<td class="tr num" style="color:'+(s.delta>=0?'var(--g)':'var(--r)')+'">'+pt(s.delta,1)+'</td>'+
+      '<td class="tr num muted">'+s.target+'</td>'+
+      '<td class="tr num" style="color:'+(gap>=0?'var(--g)':'var(--o)')+'">'+pt(gap,1)+'</td>'+
+      '<td class="tr num">'+pc(c.con,1)+'</td>'+
+      '<td class="tr num">'+c.frq.toFixed(2)+'</td>'+
+      '<td class="tr num">'+egp(c.val,0)+'</td>'+
+      '<td class="tr num">'+pc(c.bse,1)+'</td>'+
+      '<td>'+statusPill(s.status)+'</td>'+
+      '<td>'+treatChip(s.primary)+'</td>'+
+      '<td>'+flagsChips(s)+'</td></tr>';
+  });
+  h+='</tbody></table></div>';
+  h+='<div class="small muted" style="margin-top:10px">Component columns are the raw inputs to the index. Weights: CON 0.40 · VAL 0.25 · FRQ 0.20 · BSE 0.15 — geometric, so no strength fully compensates a weakness.</div>';
+  return h;
+}
+
+/* ============================================================
+   SCREEN 3 — STORE DETAIL (drawer)
+   ============================================================ */
+function openStore(code){
+  var s=STORES.filter(function(x){return x.code===code})[0]; if(!s) return;
+  var c=s.weekly[11], dom=dominantComponent(s);
+  var series=s.weekly.map(function(w){return w.cvm});
+  var b='';
+
+  /* header */
+  b+='<div class="idcard" style="background:linear-gradient(135deg,#F3F8F5,#F9F6EE);border:1px solid #D3E3DA;border-radius:10px;padding:12px 14px;margin-bottom:14px">'+
+    '<div class="spread"><div><div class="row" style="gap:8px"><span style="font-size:15px;font-weight:700">'+s.cvm.toFixed(1)+'</span>'+
+    '<span class="st '+(s.delta>=0?'g':'r')+'"><i></i>'+pt(s.delta,1)+' pts WoW</span>'+statusPill(s.status)+'</div>'+
+    '<div class="small muted" style="margin-top:3px">'+s.areaName+' · '+s.format+' · opened '+s.opened+' · manager '+s.manager+'</div></div>'+
+    '<div style="text-align:right"><div class="small muted">target</div><div class="num" style="font-size:16px;font-weight:700">'+s.target+'</div></div></div>'+
+    '<div style="margin-top:8px">'+spark(series,690,42,s.status==='g'?'var(--g)':s.status==='w'?'var(--w)':'var(--r)',true)+'</div>'+
+    '<div class="spread" style="margin-top:4px"><span class="tsub">W34</span><span class="tsub">W45</span></div></div>';
+
+  /* stats */
+  b+='<div class="grid g4" style="gap:8px;margin-bottom:14px">'+
+    [['Base',n0(s.base),'assigned customers'],['Active',n0(s.active),pc(c.bse,1)+' of base'],
+     ['Weekly value',egp(s.value),'at '+c.frq.toFixed(2)+' orders/customer'],['AOV',egp(c.val,0),'basket value']]
+    .map(function(x){return '<div style="background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px"><div class="small muted" style="font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;font-weight:700">'+x[0]+'</div><div class="num" style="font-size:15px;font-weight:700;margin-top:2px">'+x[1]+'</div><div class="tsub">'+x[2]+'</div></div>'}).join('')+'</div>';
+
+  /* decomposition */
+  b+='<div class="sec">Index decomposition — what moved it</div>';
+  b+='<div class="card" style="padding:12px">'+waterfall(s)+
+    '<div class="'+(dom.value<0?'warnbox':'okbox')+'" style="margin-top:10px"><span>'+(dom.value<0?'⚠':'✓')+'</span><span>'+
+    (dom.value<0
+      ? 'Largest movement is <b>'+dom.label+'</b> ('+pt(dom.value,1)+' pts). '+
+        (dom.key==='con'?'This is a retention problem, not a basket problem — do not run a basket-value campaign.'
+        :dom.key==='frq'?'Customers still buy, but less often — a routine or range problem.'
+        :dom.key==='val'?'Basket size moved; check leaflet mix and promotion depth before spending on retention.'
+        :'Base coverage moved; check store assignment and catchment before anything else.')
+      : 'No component is dragging the index. Protect the current mix; do not add contact volume.')+
+    '</span></div></div>';
+
+  /* guardrails */
+  b+='<div class="sec">Guardrails</div>';
+  var g=s.guard;
+  var gitems=[
+    ['Opt-out rate',pc(g.optOut,2),g.optOut>0.0045],['NPS',g.nps+'',g.nps<25],
+    ['Fulfilment',pc(g.fulfil,1),g.fulfil<0.93],['Dismissal rate',pc(g.dismiss,1),g.dismiss>0.03],
+    ['Complaints / 1k',g.complaints+'',g.complaints>12],['Contacts / customer / wk',g.contact.toFixed(1),g.contact>3]
+  ];
+  b+='<div class="grid g3" style="gap:8px">'+gitems.map(function(x){
+    return '<div style="background:'+(x[2]?'#FBF0EA':'var(--panel)')+';border:1px solid '+(x[2]?'#EBCDBB':'var(--line)')+';border-radius:8px;padding:8px 10px">'+
+      '<div class="small muted" style="font-size:9.5px;text-transform:uppercase;letter-spacing:.4px;font-weight:700">'+x[0]+'</div>'+
+      '<div class="num" style="font-size:14px;font-weight:700;color:'+(x[2]?'var(--r)':'var(--tx)')+';margin-top:2px">'+x[1]+'</div></div>';
+  }).join('')+'</div>';
+  if(s.status!=='g' && gitems.some(function(x){return x[2]}))
+    b+='<div class="warnbox" style="margin-top:8px"><span>⚠</span><span>Guardrail breach downgrades this store one status level. It cannot be traded against index improvement.</span></div>';
+
+  /* treatment allocation */
+  b+='<div class="sec">Recommended effort mix</div>';
+  b+='<div class="card" style="padding:12px">';
+  b+='<div class="mix" style="height:11px;margin-bottom:10px">'+s.alloc.map(function(r){
+      return '<i style="width:'+(r.share*100).toFixed(1)+'%;background:'+TREAT[r.t].color+'"></i>';
+    }).join('')+'</div>';
+  s.alloc.forEach(function(r,i){
+    var d=TREAT[r.t], m=s.matrix, addr={T1:stageTotal(m,0),T2:stageTotal(m,1)+stageTotal(m,2),T3:stageTotal(m,3),T4:stageTotal(m,4)+stageTotal(m,5)+stageTotal(m,6)}[r.t];
+    b+='<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)">'+
+      '<span style="width:8px;height:8px;border-radius:2px;background:'+d.color+';flex:0 0 8px"></span>'+
+      '<div class="flex1"><div class="small'+(i===0?'" style="font-weight:700':'')+'">'+r.t+' '+d.name+(i===0?' · primary':'')+'</div>'+
+      '<div class="tsub">'+n0(addr)+' addressable · gap '+(r.gap*100).toFixed(1)+' pts vs group · uplift '+pc(r.uplift,0)+'</div></div>'+
+      '<div style="text-align:right"><div class="num" style="font-weight:700">'+(r.share*100).toFixed(0)+'%</div>'+
+      '<div class="tsub">'+egp(r.expected/1000)+'/wk</div></div></div>';
+  });
+  b+='<div class="row" style="margin-top:10px"><button class="btn primary sm" onclick="toast(\'4 activities drafted from this mix — review and approve in the Activities Log\',\'ok\')">Create activities from this mix</button>'+
+     '<button class="btn sm" onclick="toast(\'Allocation recalculated with this week\\\'s movement\',\'ok\')">Recalculate</button></div>';
+  b+='<div class="tsub" style="margin-top:8px">need_score = addressable × gap vs group median × basket × uplift − cost. Ties broken by margin cost of the mechanic.</div>';
+  b+='</div>';
+
+  /* lifecycle matrix */
+  b+='<div class="sec">Lifecycle × tier (this store)</div>';
+  b+='<div class="card" style="padding:10px;overflow-x:auto">'+matrixHTML(s.matrix,s.prevMatrix,true)+'</div>';
+
+  /* activity history */
+  b+='<div class="sec">Recent activities in this store</div>';
+  var acts=ACTIVITIES.filter(function(a){return a.store===s.code}).slice(0,6);
+  b+='<div class="card pad0" style="border-radius:9px"><table><tbody>';
+  acts.forEach(function(a){
+    var st=actStatus(a.status);
+    b+='<tr class="cl" onclick="openActivity(\''+a.id+'\')"><td style="padding:7px 10px">'+
+      '<div class="small" style="font-weight:600">'+esc(a.name)+'</div>'+
+      '<div class="tsub">'+a.week+' · '+a.channel+' · '+n0(a.audience)+' audience</div></td>'+
+      '<td class="tr" style="padding:7px 10px"><div class="num small">'+(a.incremental!=null?egp(a.incremental):'—')+'</div>'+
+      '<div class="tsub">incremental</div></td>'+
+      '<td style="padding:7px 10px">'+'<span class="st '+st[0]+'"><i></i>'+st[1]+'</span>'+'</td></tr>';
+  });
+  b+='</tbody></table></div>';
+  if(!acts.length) b+='<div class="card"><div class="empty">No activities in this store yet.</div></div>';
+
+  /* insights */
+  var ins=INSIGHTS.filter(function(x){return x.store===s.code||x.store==='Group'}).slice(0,3);
+  if(ins.length){
+    b+='<div class="sec">Signals behind the movement</div>';
+    ins.forEach(function(x){
+      b+='<div class="card" style="padding:10px 12px;margin-bottom:8px">'+
+        '<div class="spread" style="margin-bottom:3px"><span class="st c" style="font-size:9.5px"><i></i>'+x.signal+'</span>'+
+        '<span class="mono tsub">r='+x.r.toFixed(2)+' · n='+x.n+' · lag '+x.lag+'w · conf '+pc(x.conf,0)+'</span></div>'+
+        '<div class="small" style="color:var(--tx2);line-height:1.55">'+esc(x.statement)+'</div></div>';
+    });
+  }
+
+  /* notes */
+  b+='<div class="sec">Branch notes</div>';
+  b+='<div class="card" style="padding:10px 12px"><div class="small" style="color:var(--tx2)">'+
+     (s.code==='S07'?'Ops: two delivery riders short since W40; dismissal complaints concentrated in evening slots.':'No open notes for this store.')+
+     '</div><button class="btn sm" style="margin-top:8px" onclick="toast(\'Note added — timestamped and attributed\',\'ok\')">Add note</button></div>';
+
+  openDrawer(s.code+' · '+s.name,'Branch detail · W45 · target '+s.target,b);
+}
+
+/* shared matrix renderer */
+function matrixHTML(m,prev,compact){
+  var h='<div class="mx" style="grid-template-columns:'+(compact?'46px':'58px')+' repeat(5,1fr) 44px">';
+  h+='<div class="mh"></div>'+TIERS.map(function(t){return '<div class="mh">'+t+'</div>'}).join('')+'<div class="mh">Total</div>';
+  for(var i=0;i<7;i++){
+    h+='<div class="mr">'+STAGE_KEYS[i]+'</div>';
+    for(var j=0;j<5;j++){
+      var v=m[i][j], p=prev?prev[i][j]:v, d=v-p;
+      var a=clamp(v/(compact?190:3400),0.05,0.8);
+      h+='<div class="cell" title="'+STAGE_NAMES[STAGE_KEYS[i]]+' × '+TIERS[j]+': '+n0(v)+(prev?' ('+pt(d,0)+')':'')+'" '+
+        'style="background:rgba(14,110,92,'+a.toFixed(2)+');border:1px solid rgba(14,110,92,'+(Math.min(0.9,a*1.5)).toFixed(2)+')">'+
+        '<b style="color:'+(a>0.55?'#fff':'var(--tx2)')+'">'+n0(v)+'</b>'+
+        (prev?'<span style="color:'+(d>0?'#1F7A4F':d<0?'#9B1612':'var(--tx3)')+'">'+pt(d,0)+'</span>':'')+'</div>';
+    }
+    var tot=stageTotal(m,i), ptot=prev?stageTotal(prev,i):tot, dt=tot-ptot;
+    h+='<div class="cell" style="background:var(--panel2)"><b>'+n0(tot)+'</b><span style="color:'+(dt>0?'#1F7A4F':dt<0?'#9B1612':'var(--tx3)')+'">'+(prev?pt(dt,0):'')+'</span></div>';
+  }
+  h+='</div>';
+  return h;
+}
+
+/* ============================================================
+   SCREEN 4 — LIFECYCLE MOVEMENT
+   ============================================================ */
+function vMovement(){
+  var m=GROUP_MATRIX, p=GROUP_PREV, total=matrixTotal(m);
+  var atRisk=stageTotal(m,4)+stageTotal(m,5)+stageTotal(m,6);
+  var h='';
+
+  h+='<div class="grid g4" style="margin-bottom:12px">'+
+    [['Active base',pc(stageTotal(m,3)/total,1),'S3 of '+n0(total),'var(--g)'],
+     ['At risk + churned + lost',pc(atRisk/total,1),n0(atRisk)+' customers','var(--o)'],
+     ['Not yet ordered',pc(stageTotal(m,0)/total,1),'S0 — T1 demand pool','var(--cyan)'],
+     ['Net into S4 this week',pt(stageTotal(m,4)-stageTotal(p,4),0),'customers moved to at-risk','var(--r)']]
+    .map(function(x){return '<div class="card" style="padding:12px"><div class="small muted" style="font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;font-weight:700">'+x[0]+'</div>'+
+      '<div class="num" style="font-size:20px;font-weight:700;margin:3px 0;color:'+x[3]+'">'+x[1]+'</div><div class="tsub">'+x[2]+'</div></div>'}).join('')+
+    '</div>';
+
+  h+='<div class="card" style="margin-bottom:12px"><div class="card-h"><h3>Stage × value tier — whole group</h3>'+
+    '<div class="sub">W44 → W45 · cells show current count with week-on-week change · heavier fill = more customers</div></div>'+
+    '<div style="overflow-x:auto">'+matrixHTML(m,p,false)+'</div>'+
+    '<div class="small muted" style="margin-top:10px">Stages: S0 registered-no-order · S1 new (1 order) · S2 developing (2) · S3 active · S4 at risk · S5 churned · S6 lost. '+
+    'Tiers by AOV of the last three orders.</div></div>';
+
+  /* stage flow table */
+  h+='<div class="grid g2">';
+  h+='<div class="card pad0"><div class="card-h" style="padding:14px 14px 0"><h3>Where the customers went</h3><div class="sub">net movement by stage, priced at stage basket</div></div>'+
+    '<table><thead><tr><th>Stage</th><th class="tr">W44</th><th class="tr">W45</th><th class="tr">Net</th><th class="tr">Value impact</th><th>Read</th></tr></thead><tbody>';
+  var basketByStage=[180,420,620,910,640,410,290];
+  for(var i=0;i<7;i++){
+    var a=stageTotal(p,i), b=stageTotal(m,i), d=b-a;
+    var valDelta=d*basketByStage[i];
+    var read = i===3 ? (d<0?'draining into risk':'holding') :
+               i===4 ? (d>0?'inflow from S3':'recovering') :
+               i===6 ? (d>0?'slipping out of reach':'some recovered') :
+               i===0 ? (d>0?'new registrations':'converting out') : (d>0?'gaining':'losing');
+    h+='<tr><td><div class="tname">'+STAGE_KEYS[i]+' · '+STAGE_NAMES[STAGE_KEYS[i]]+'</div></td>'+
+      '<td class="tr num muted">'+n0(a)+'</td><td class="tr num">'+n0(b)+'</td>'+
+      '<td class="tr num" style="color:'+(d>=0?'var(--g)':'var(--r)')+';font-weight:700">'+pt(d,0)+'</td>'+
+      '<td class="tr num" style="color:'+(valDelta>=0?'var(--g)':'var(--r)')+'">'+pt(valDelta/1000,0)+'k</td>'+
+      '<td class="small muted">'+read+'</td></tr>';
+  }
+  h+='</tbody></table></div>';
+
+  /* per store selector */
+  h+='<div class="card"><div class="card-h"><h3>One store at a time</h3><div class="sub">movement is a store decision, not a group average</div></div>'+
+    '<div class="field" style="margin-bottom:10px"><label>Branch</label><select onchange="state.movStore=this.value;render()">'+
+    '<option value="">Group</option>'+
+    STORES.map(function(s){return '<option value="'+s.code+'"'+(state.movStore===s.code?' selected':'')+'>'+s.code+' · '+esc(s.name)+'</option>'}).join('')+
+    '</select></div>';
+  var sel=state.movStore?STORES.filter(function(s){return s.code===state.movStore})[0]:null;
+  if(sel){
+    h+='<div style="overflow-x:auto">'+matrixHTML(sel.matrix,sel.prevMatrix,true)+'</div>';
+    var aR=stageTotal(sel.matrix,4)+stageTotal(sel.matrix,5)+stageTotal(sel.matrix,6);
+    h+='<div class="row" style="margin-top:10px;gap:6px;flex-wrap:wrap">'+
+      '<span class="st n">'+n0(sel.base)+' base</span>'+
+      '<span class="st '+(aR/sel.base>0.3?'o':'g')+'">'+pc(aR/sel.base,1)+' at risk or worse</span>'+
+      '<span class="st n">'+egp(sel.weekly[11].val,0)+' AOV</span>'+
+      '<span class="st n">'+sel.primary+' '+TREAT[sel.primary].name+'</span></div>'+
+      '<button class="btn sm" style="margin-top:10px" onclick="openStore(\''+sel.code+'\')">Open store detail</button>';
+  } else {
+    h+='<div class="empty" style="padding:26px">Pick a store to see its own 35-cell grid.</div>';
+  }
+  h+='</div></div>';
+
+  /* stage-to-treatment map */
+  h+='<div class="card" style="margin-top:12px"><div class="card-h"><h3>Stage → treatment, fixed by design</h3>'+
+    '<div class="sub">this mapping is not configurable — it is the definition of the four treatments</div></div>'+
+    '<div class="grid g4" style="gap:10px">'+
+    ['T1','T2','T3','T4'].map(function(t){
+      var d=TREAT[t];
+      var stg=Object.keys(STAGE_TREAT).filter(function(k){return STAGE_TREAT[k]===t});
+      var n=stg.reduce(function(a,k){return a+stageTotal(m,STAGE_KEYS.indexOf(k))},0);
+      return '<div style="background:'+d.color+'10;border:1px solid '+d.color+'38;border-radius:9px;padding:10px">'+
+        '<div class="small" style="font-weight:700;color:'+d.color+'">'+t+' · '+d.name+'</div>'+
+        '<div class="tsub" style="margin:3px 0 6px">'+stg.join(' · ')+'</div>'+
+        '<div class="num" style="font-size:16px;font-weight:700">'+n0(n)+'</div>'+
+        '<div class="tsub">addressable · '+d.kpi+'</div></div>';
+    }).join('')+'</div></div>';
+  return h;
+}
+
+/* ============================================================
+   SCREEN 5 — ACTIVITIES LOG
+   ============================================================ */
+function vActivities(){
+  var tab=state.actTab;
+  var list=ACTIVITIES.filter(function(a){
+    if(tab==='all') return true;
+    if(tab==='running') return a.status==='running';
+    if(tab==='measured') return a.status==='measured';
+    if(tab==='planned') return a.status==='planned';
+    if(tab==='nohold') return a.holdout===0;
+    return true;
+  });
+  var contacts=ACTIVITIES.reduce(function(a,x){return a+x.contacts},0);
+  var incr=ACTIVITIES.reduce(function(a,x){return a+(x.incremental||0)},0);
+  var cost=ACTIVITIES.reduce(function(a,x){return a+x.cost},0);
+  var nohold=ACTIVITIES.filter(function(a){return a.holdout===0}).length;
+
+  var h='';
+  h+='<div class="grid g4" style="margin-bottom:12px">'+
+    [['Activities logged',ACTIVITIES.length+'','11 weeks · 4 treatments','var(--tx)'],
+     ['Contacts sent',n0(contacts),'all channels','var(--acc)'],
+     ['Measured incremental',egp(incr),'holdout-differenced','var(--g)'],
+     ['Activities without holdout',nohold+'','cannot be measured — flagged','var(--o)']]
+    .map(function(x){return '<div class="card" style="padding:12px"><div class="small muted" style="font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;font-weight:700">'+x[0]+'</div>'+
+      '<div class="num" style="font-size:19px;font-weight:700;margin:3px 0;color:'+x[3]+'">'+x[1]+'</div><div class="tsub">'+x[2]+'</div></div>'}).join('')+
+    '</div>';
+
+  if(nohold) h+='<div class="warnbox" style="margin-bottom:12px"><span>⚠</span><span><b>'+nohold+' activities have no holdout.</b> Their revenue figures are gross, not incremental, and are excluded from the uplift library. Every activity created from the Control Tower gets a holdout by default.</span></div>';
+
+  h+='<div class="spread" style="margin-bottom:10px">'+
+    '<div class="tabs">'+[['all','All'],['running','Running'],['measured','Measured'],['planned','Planned'],['nohold','No holdout']]
+      .map(function(t){return '<button class="'+(tab===t[0]?'on':'')+'" onclick="state.actTab=\''+t[0]+'\';render()">'+t[1]+'</button>'}).join('')+'</div>'+
+    '<div class="row"><button class="btn sm primary" onclick="toast(\'New activity — pick a store, the treatment is suggested by its stage mix\',\'ok\')">+ New activity</button></div></div>';
+
+  h+='<div class="card pad0"><table><thead><tr>'+
+    '<th>Activity</th><th>Branch</th><th>Trt</th><th>Week</th><th>Stage / tier</th><th class="tr">Audience</th>'+
+    '<th class="tr">Holdout</th><th class="tr">Revenue</th><th class="tr">Incremental</th><th class="tr">Cost</th><th>Status</th></tr></thead><tbody>';
+  list.forEach(function(a){
+    var st=actStatus(a.status);
+    h+='<tr class="cl" onclick="openActivity(\''+a.id+'\')">'+
+      '<td style="max-width:250px"><div class="tname" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(a.name)+'</div>'+
+      '<div class="tsub">'+a.id+' · '+esc(a.channel)+' · '+esc(a.offer)+'</div></td>'+
+      '<td class="small mono">'+a.store+'</td>'+
+      '<td><span class="st" style="color:'+TREAT[a.treatment].color+';background:'+TREAT[a.treatment].color+'14;border-color:'+TREAT[a.treatment].color+'38;font-size:9.5px">'+a.treatment+'</span></td>'+
+      '<td class="small mono">'+a.week+'</td>'+
+      '<td class="small muted">'+a.stage+' · '+a.tiers+'</td>'+
+      '<td class="tr num">'+n0(a.audience)+'</td>'+
+      '<td class="tr num" style="color:'+(a.holdout?'var(--tx2)':'var(--o)')+'">'+(a.holdout?pc(a.holdout,0):'none')+'</td>'+
+      '<td class="tr num">'+(a.revenue?egp(a.revenue):'—')+'</td>'+
+      '<td class="tr num" style="color:'+(a.incremental?'var(--g)':'var(--tx3)')+'">'+(a.incremental!=null?egp(a.incremental):'—')+'</td>'+
+      '<td class="tr num muted">'+egp(a.cost)+'</td>'+
+      '<td><span class="st '+st[0]+'" style="font-size:9.5px"><i></i>'+st[1]+'</span></td></tr>';
+  });
+  h+='</tbody></table></div>';
+  h+='<div class="small muted" style="margin-top:10px">Every row carries <span class="mono">store_id</span>, <span class="mono">lifecycle_stage</span>, <span class="mono">value_tier</span> and the CVM component the activity is meant to move. That is what makes the log a control instrument rather than a campaign archive.</div>';
+  return h;
+}
+
+function openActivity(id){
+  var a=ACTIVITIES.filter(function(x){return x.id===id})[0]; if(!a) return;
+  var s=STORES.filter(function(x){return x.code===a.store})[0];
+  var st=actStatus(a.status);
+  var b='';
+  b+='<div class="row" style="gap:6px;margin-bottom:12px;flex-wrap:wrap">'+treatChip(a.treatment)+
+     '<span class="st '+st[0]+'"><i></i>'+st[1]+'</span>'+
+     (a.test?'<span class="st c"><i></i>'+a.test+'</span>':'<span class="st o"><i></i>no test linked</span>')+'</div>';
+
+  b+='<div class="sec">Hypothesis</div><div class="card small" style="padding:11px 12px;color:var(--tx2);line-height:1.6">'+esc(a.hypothesis)+
+     '<div class="tsub" style="margin-top:6px">If true, it should move <b style="color:var(--tx)">'+a.component.toUpperCase()+'</b> in store '+a.store+'.</div></div>';
+
+  b+='<div class="sec">Design</div>';
+  b+='<div class="grid g2" style="gap:8px">'+
+    [['Audience',n0(a.audience)+' customers'],['Holdout',a.holdout?pc(a.holdout,0)+' ('+n0(Math.round(a.audience*a.holdout))+')':'none'],
+     ['Stage / tier',a.stage+' · '+a.tiers],['Channel',a.channel],
+     ['Offer',a.offer],['Owner',a.owner],['Week',a.week],['Store',a.store+' · '+s.name]]
+    .map(function(x){return '<div style="background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:7px 10px"><div class="tsub">'+x[0]+'</div><div class="small" style="font-weight:600;margin-top:1px">'+esc(x[1])+'</div></div>'}).join('')+'</div>';
+
+  b+='<div class="sec">Result</div>';
+  if(a.incremental!=null){
+    var roas=a.incremental/a.cost;
+    b+='<div class="card" style="padding:11px 12px">'+
+      '<div class="grid g3" style="gap:8px">'+
+      [['Gross revenue',egp(a.revenue)],['Incremental',egp(a.incremental)],['Cost',egp(a.cost)]].map(function(x){
+        return '<div><div class="tsub">'+x[0]+'</div><div class="num" style="font-size:14px;font-weight:700">'+x[1]+'</div></div>'}).join('')+'</div>'+
+      '<div class="spread" style="margin-top:9px;padding-top:9px;border-top:1px solid var(--line)">'+
+      '<span class="small muted">Incremental ROAS</span><span class="num" style="font-weight:700;color:'+(roas>1?'var(--g)':'var(--r)')+'">'+roas.toFixed(2)+'×</span></div>'+
+      '<div class="tsub" style="margin-top:6px">Conversion '+pc(a.conversions/a.contacts,1)+' of contacts · basket of converted customers is valued at the store AOV ('+egp(s.weekly[11].val,0)+').</div></div>';
+  } else {
+    b+='<div class="card"><div class="empty" style="padding:18px">'+(a.status==='running'?'Reading in progress — results unblinded at minimum sample.':'Not yet run.')+'</div></div>';
+  }
+
+  b+='<div class="sec">Link to the north star</div>';
+  b+='<div class="card small" style="padding:11px 12px;color:var(--tx2);line-height:1.6">'+
+     'This activity is charged to <b style="color:var(--tx)">'+s.code+' CVM target '+s.target+'</b> (current '+s.cvm.toFixed(1)+', '+pt(s.cvm-s.target,1)+' pts). '+
+     'It is permitted to stay in the plan only while the component it targets is the store\'s largest drag. For '+s.code+' that is currently <b style="color:var(--tx)">'+dominantComponent(s).label+'</b>.</div>';
+
+  b+='<div class="row" style="margin-top:14px;flex-wrap:wrap">'+
+     '<button class="btn primary sm" onclick="toast(\'Copied into the plan as a repeatable activity\',\'ok\')">Repeat next month</button>'+
+     '<button class="btn sm" onclick="toast(\'Converted to an A/B test with a 10% holdout\',\'ok\')">Convert to test</button>'+
+     '<button class="btn sm" onclick="openStore(\''+s.code+'\')">Open store</button></div>';
+
+  openDrawer(a.name,a.id+' · '+a.store+' · '+a.week,b);
+}
+
+/* ============================================================
+   SCREEN 6 — TARGETS & PLANNING
+   ============================================================ */
+function reqCon(s){ // continuation needed, other components held, to hit target
+  var c=s.weekly[11];
+  var other=Math.pow(c.frq/BASE.frq,WT.frq)*Math.pow(c.val/BASE.val,WT.val)*Math.pow(c.bse/BASE.bse,WT.bse);
+  var K=(s.target/100)/other;
+  return BASE.con*Math.pow(K,1/WT.con);
+}
+function reqVal(s){
+  var c=s.weekly[11];
+  var other=Math.pow(c.con/BASE.con,WT.con)*Math.pow(c.frq/BASE.frq,WT.frq)*Math.pow(c.bse/BASE.bse,WT.bse);
+  var K=(s.target/100)/other;
+  return BASE.val*Math.pow(K,1/WT.val);
+}
+function vTargets(){
+  var avgTarget=STORES.reduce(function(a,s){return a+s.target*s.value},0)/GROUP.totalValue;
+  var h='';
+  h+='<div class="grid g4" style="margin-bottom:12px">'+
+    [['Group target',avgTarget.toFixed(1),'value-weighted','var(--tx)'],
+     ['Group actual',GROUP.cvm.toFixed(1),pt(GROUP.cvm-avgTarget,1)+' pts vs target',(GROUP.cvm>=avgTarget?'var(--g)':'var(--r)')],
+     ['Branches on target',STORES.filter(function(s){return s.cvm>=s.target}).length+' / '+STORES.length,'CVM at or above target','var(--g)'],
+     ['Branches needing >5 pts',STORES.filter(function(s){return s.target-s.cvm>5}).length,'structural, not tactical','var(--r)']]
+    .map(function(x){return '<div class="card" style="padding:12px"><div class="small muted" style="font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;font-weight:700">'+x[0]+'</div>'+
+      '<div class="num" style="font-size:20px;font-weight:700;margin:3px 0;color:'+x[3]+'">'+x[1]+'</div><div class="tsub">'+x[2]+'</div></div>'}).join('')+
+    '</div>';
+
+  h+='<div class="grid g23">';
+  /* table */
+  h+='<div class="card pad0"><div class="card-h" style="padding:14px 14px 0"><h3>Target vs actual vs forecast</h3>'+
+    '<div class="sub">forecast = last-4-week linear continuation, no planned activity</div></div>'+
+    '<table><thead><tr><th>Branch</th><th class="tr">Target</th><th class="tr">Actual</th><th class="tr">Var</th>'+
+    '<th class="tr">W48 forecast</th><th class="tr">Gap to close</th><th>Cheapest lever</th></tr></thead><tbody>';
+  STORES.slice().sort(function(a,b){return (b.target-b.cvm)-(a.target-a.cvm)}).forEach(function(s){
+    var w=s.weekly, fc=w[11].cvm+(w[11].cvm-w[7].cvm)/4;
+    var needCon=reqCon(s), needVal=reqVal(s), c=w[11];
+    var dCon=needCon-c.con, dVal=needVal-c.val;
+    var lever = s.target<=s.cvm ? '— hold' :
+      (Math.abs(dCon)/c.con < Math.abs(dVal)/c.val
+        ? 'CON +'+(dCon*100).toFixed(1)+' pts'
+        : 'VAL +EGP '+Math.round(dVal));
+    h+='<tr class="cl" onclick="openStore(\''+s.code+'\')">'+
+      '<td><div class="tname">'+s.code+' · '+esc(s.name)+'</div><div class="tsub">'+s.areaName+'</div></td>'+
+      '<td class="tr num muted">'+s.target+'</td>'+
+      '<td class="tr num" style="font-weight:700">'+s.cvm.toFixed(1)+'</td>'+
+      '<td class="tr num" style="color:'+(s.cvm>=s.target?'var(--g)':'var(--r)')+'">'+pt(s.cvm-s.target,1)+'</td>'+
+      '<td class="tr num" style="color:'+(fc>=s.target?'var(--g)':'var(--o)')+'">'+fc.toFixed(1)+'</td>'+
+      '<td class="tr num">'+(s.target>s.cvm?(s.target-s.cvm).toFixed(1):'0.0')+'</td>'+
+      '<td class="small muted">'+lever+'</td></tr>';
+  });
+  h+='</tbody></table></div>';
+
+  /* what-if */
+  h+='<div class="card"><div class="card-h"><h3>What-if: more contact volume</h3><div class="sub">the most common "plan" in CVM programmes — price it first</div></div>'+
+    '<div class="field"><label>Contact volume change</label>'+
+    '<input type="range" min="-20" max="50" value="0" step="5" id="wiSlider" oninput="whatif(this.value)" style="width:100%"></div>'+
+    '<div id="wiOut"></div>'+
+    '<div class="tsub" style="margin-top:10px">Elasticities: continuation +0.12% per 1% of contact volume, frequency +0.08%, basket −0.03% (discounting), base health −0.02% (opt-out). Costed at EGP 4.20 per contact.</div>'+
+    '</div></div>';
+
+  h+='<div class="grid g2" style="margin-top:12px">'+
+    '<div class="card"><div class="card-h"><h3>Period view</h3><div class="sub">targets are set monthly, reviewed weekly</div></div>'+
+    '<table><thead><tr><th>Period</th><th class="tr">Target</th><th class="tr">Actual</th><th class="tr">Var</th><th>Read</th></tr></thead><tbody>'+
+    [['November 2026 (to date)',avgTarget,GROUP.cvm],['October 2026',avgTarget-0.4,GROUP.cvm-1.8],['Q4 2026 (to date)',avgTarget+0.2,GROUP.cvm-1.1],['Q3 2026 (closed)',avgTarget-1.3,avgTarget-0.9]]
+    .map(function(r){
+      var v=r[2]-r[1];
+      return '<tr><td class="small">'+r[0]+'</td><td class="tr num muted">'+r[1].toFixed(1)+'</td>'+
+      '<td class="tr num">'+r[2].toFixed(1)+'</td>'+
+      '<td class="tr num" style="color:'+(v>=0?'var(--g)':'var(--r)')+'">'+pt(v,1)+'</td>'+
+      '<td class="small muted">'+(v>=0?'on plan':v>-2?'recoverable this month':'re-baseline needed')+'</td></tr>';
+    }).join('')+'</tbody></table></div>'+
+    '<div class="card"><div class="card-h"><h3>Rules that govern the plan</h3></div>'+
+    '<div class="small" style="color:var(--tx2);line-height:1.75">'+
+    '<div>· A store may not run more than <b>2 activities per week per treatment</b> without an explicit override.</div>'+
+    '<div>· No activity is created without a holdout; no-holdout activities are excluded from the uplift library.</div>'+
+    '<div>· Contact volume cannot exceed <b>3 contacts per customer per week</b>; the cap binds before the index does.</div>'+
+    '<div>· A target may be revised only at the quarterly reset, and only with a written reason.</div>'+
+    '<div>· When acquisition rises ≥10% while the index falls ≥3 pts, the plan is frozen and re-scoped. This is not a warning — it is a stop.</div>'+
+    '</div></div></div>';
+  return h;
+}
+function whatif(v){
+  v=+v;
+  var c=0.0012*v, f=0.0008*v, b=0.0003*v, bs=0.0002*v;
+  var idx=0;
+  STORES.forEach(function(s){
+    var w=s.weekly[11];
+    idx+=cvmOf(w.con*(1+c),w.frq*(1+f),w.val*(1-b),w.bse*(1-bs))*w.value;
+  });
+  idx/=GROUP.totalValue;
+  var d=idx-GROUP.cvm;
+  var contactsPerWeek=GROUP.totalActive*0.8;
+  var extraCost=contactsPerWeek*(v/100)*4.2;
+  document.getElementById('wiOut').innerHTML=
+    '<div class="grid g3" style="gap:8px;margin-top:4px">'+
+    [['Projected index',idx.toFixed(1),(d>=0?'+':'')+d.toFixed(2)+' pts',(d>=0?'var(--g)':'var(--r)')],
+     ['Extra contacts / week',n0(contactsPerWeek*v/100),'on top of today','var(--tx)'],
+     ['Extra cost / week',egp(extraCost),'at EGP 4.20 per contact','var(--o)']]
+    .map(function(x){return '<div style="background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:8px 10px"><div class="tsub">'+x[0]+'</div><div class="num" style="font-size:14px;font-weight:700;color:'+x[3]+'">'+x[1]+'</div><div class="tsub">'+x[2]+'</div></div>'}).join('')+'</div>'+
+    '<div class="'+(v>25?'warnbox':'okbox')+'" style="margin-top:9px"><span>'+(v>25?'⚠':'✓')+'</span><span>'+
+    (v>25? 'Beyond +25% the opt-out elasticity starts to eat the gain; past roughly +40% the index usually falls. Volume is not a plan.'
+         : v<0? 'Cutting volume saves cost and slowly costs retention — acceptable for a quarter, not a strategy.'
+         : 'Within the range where contact volume still buys retention. It buys a fraction of a point, not a gap.')+
+    '</span></div>';
+}
+
+/* ============================================================
+   SCREEN 7 — EXCEPTIONAL SEGMENTS
+   ============================================================ */
+var segTab='pl';
+function vSegments(){
+  var tab=segTab, h='';
+  h+='<div class="spread" style="margin-bottom:12px"><div class="tabs">'+
+    [['pl','Own-Brand Penetration'],['brand','Brand Switching'],['order','Recurring Basket'],['dismiss','Service Failure']]
+    .map(function(t){return '<button class="'+(tab===t[0]?'on':'')+'" onclick="segTab=\''+t[0]+'\';render()">'+t[1]+'</button>'}).join('')+'</div>'+
+    '<span class="st n" style="font-size:9.5px">read-only · definitions owned by Data Science</span></div>';
+
+  if(tab==='pl'){
+    var plSorted=STORES.slice().sort(function(a,b){return b.pl.share-a.pl.share});
+    var gShare=STORES.reduce(function(a,s){return a+s.pl.share*s.value},0)/GROUP.totalValue;
+    h+='<div class="grid g4" style="margin-bottom:12px">'+
+      [['Network own-brand share',pc(gShare,1),'of item value','var(--v)'],
+       ['Own-brand basket vs national',pc(0.87,0),'own-brand baskets run smaller','var(--o)'],
+       ['Own-brand retention uplift',pc(0.11,0),'after month three, tier held','var(--g)'],
+       ['Branches losing own-brand share',STORES.filter(function(s){return s.pl.delta<0}).length+' / '+STORES.length,'negative quarter on quarter','var(--r)']]
+      .map(function(x){return '<div class="card" style="padding:12px"><div class="small muted" style="font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;font-weight:700">'+x[0]+'</div>'+
+        '<div class="num" style="font-size:19px;font-weight:700;margin:3px 0;color:'+x[3]+'">'+x[1]+'</div><div class="tsub">'+x[2]+'</div></div>'}).join('')+
+      '</div>';
+    h+='<div class="card pad0"><div class="card-h" style="padding:14px 14px 0"><h3>Own-brand share, by store</h3>'+
+      '<div class="sub">share of item value in the trailing 28 days · quarter-on-quarter change</div></div>'+
+      '<table><thead><tr><th>Branch</th><th style="width:34%">Share of item value</th><th class="tr">QoQ</th><th class="tr">OB buyers</th><th class="tr">OB AOV</th><th class="tr">OB retention</th><th>Commercial read</th></tr></thead><tbody>';
+    plSorted.forEach(function(s){
+      var buyers=Math.round(s.base*clamp(s.pl.share*1.6,0.06,0.9));
+      var read = s.pl.delta>0.02?'growing on its own — protect' : s.pl.delta<-0.02?'items losing share — check range and facing':'stable';
+      h+='<tr class="cl" onclick="openStore(\''+s.code+'\')">'+
+        '<td><div class="tname">'+s.code+' · '+esc(s.name)+'</div><div class="tsub">'+s.areaName+' · '+s.format+'</div></td>'+
+        '<td><div class="row" style="gap:6px"><div class="bar flex1" style="height:6px"><i style="width:'+(s.pl.share*250).toFixed(0)+'%;background:var(--v)"></i></div>'+
+        '<span class="num small" style="width:38px;text-align:right">'+pc(s.pl.share,1)+'</span></div></td>'+
+        '<td class="tr num" style="color:'+(s.pl.delta>=0?'var(--g)':'var(--r)')+'">'+pt(s.pl.delta*100,1)+' pts</td>'+
+        '<td class="tr num">'+n0(buyers)+'</td>'+
+        '<td class="tr num">'+egp(s.weekly[11].val*0.87,0)+'</td>'+
+        '<td class="tr num">'+(pc(0.62+s.pl.share*0.4,1))+'</td>'+
+        '<td class="small muted">'+read+'</td></tr>';
+    });
+    h+='</tbody></table></div>';
+    h+='<div class="card" style="margin-top:12px"><div class="card-h"><h3>What this is for commercially</h3></div>'+
+      '<div class="small" style="color:var(--tx2);line-height:1.7">Own-brand penetration is the only measure in the tower that is simultaneously a <b>margin</b> lever and a <b>retention</b> lever. '+
+      'Because own-brand buyers retain better at the same tier, penetration is treated as a leading indicator of base health — it sits behind the BSE component, not the basket. '+
+      'The action it licenses is narrow and honest: swap-nudge offers inside existing categories, never a blanket discount, and never on a store already eroding share.</div></div>';
+  }
+
+  if(tab==='brand'){
+    var top=MIGRATION.slice(0,10);
+    h+='<div class="grid g23"><div class="card pad0"><div class="card-h" style="padding:14px 14px 0"><h3>Largest customer-base migrations</h3>'+
+      '<div class="sub">customers whose majority brand switched between the last two 28-day windows</div></div>'+
+      '<table><thead><tr><th>From</th><th></th><th>To</th><th class="tr">Customers</th><th class="tr">Value moved</th><th>Direction</th></tr></thead><tbody>';
+    top.forEach(function(m){
+      var toPl=m.to.indexOf('PL')>=0, fromPl=m.from.indexOf('PL')>=0;
+      var dir = toPl?'gaining own-brand — margin positive' : fromPl?'losing own-brand — margin negative' : 'national → national';
+      h+='<tr><td class="small" style="font-weight:600">'+m.from+'</td><td class="muted">→</td><td class="small" style="font-weight:600">'+m.to+'</td>'+
+        '<td class="tr num">'+n0(m.count)+'</td><td class="tr num">'+egp(m.value)+'</td>'+
+        '<td class="small" style="color:'+(toPl?'var(--g)':fromPl?'var(--r)':'var(--tx3)')+'">'+dir+'</td></tr>';
+    });
+    h+='</tbody></table></div>';
+    h+='<div class="card"><div class="card-h"><h3>Net flow, own-brand</h3></div>'+
+      '<div style="margin-bottom:10px">'+
+      (function(){
+        var into=MIGRATION.filter(function(m){return m.to.indexOf('PL')>=0}).reduce(function(a,m){return a+m.count},0);
+        var out=MIGRATION.filter(function(m){return m.from.indexOf('PL')>=0}).reduce(function(a,m){return a+m.count},0);
+        return '<div class="num" style="font-size:26px;font-weight:700;color:'+(into>out?'var(--g)':'var(--r)')+'">'+pt(into-out,0)+'</div>'+
+          '<div class="tsub">net customers into own-brand · '+n0(into)+' in, '+n0(out)+' out</div>';
+      })()+'</div>'+
+      '<div class="small muted" style="line-height:1.6">Migration between two national brands is a range decision. Migration between a national brand and own-brand is a margin decision. '+
+      'The tower reports both, because a store can hit its CVM target while quietly trading margin for volume.</div>'+
+      '<button class="btn sm" style="margin-top:10px" onclick="toast(\'Segment definition opened in Admin — Data Science owns it\',\'ok\')">Open definition</button></div></div>';
+  }
+
+  if(tab==='order'){
+    h+='<div class="grid g4" style="margin-bottom:12px">'+
+      [['Scheduled share',pc(0.212,1),'of orders','var(--cyan)'],
+       ['Scheduled continuation',pc(0.824,1),'vs '+pc(0.594,1)+' on-demand','var(--g)'],
+       ['Scheduled AOV premium',pc(0.14,0),'higher basket','var(--v)'],
+       ['Converted this month',n0(1847)+'','on-demand → scheduled','var(--acc)']]
+      .map(function(x){return '<div class="card" style="padding:12px"><div class="small muted" style="font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;font-weight:700">'+x[0]+'</div>'+
+        '<div class="num" style="font-size:19px;font-weight:700;margin:3px 0;color:'+x[3]+'">'+x[1]+'</div><div class="tsub">'+x[2]+'</div></div>'}).join('')+'</div>';
+    h+='<div class="card pad0"><div class="card-h" style="padding:14px 14px 0"><h3>Scheduled vs on-demand, by store</h3>'+
+      '<div class="sub">the single highest-leverage behavioural split in the data — a scheduled customer is a continuation decision already made</div></div>'+
+      '<table><thead><tr><th>Branch</th><th class="tr">Scheduled share</th><th class="tr">Sched. CON</th><th class="tr">On-demand CON</th><th class="tr">CON gap</th><th>Eligible to convert</th></tr></thead><tbody>';
+    STORES.forEach(function(s){
+      var sh=clamp(0.08+s.pl.share*0.55+rf(-0.03,0.05),0.05,0.42);
+      var cs=clamp(s.weekly[11].con*1.32,0.5,0.93), co=s.weekly[11].con;
+      h+='<tr class="cl" onclick="openStore(\''+s.code+'\')"><td><div class="tname">'+s.code+' · '+esc(s.name)+'</div></td>'+
+        '<td class="tr num">'+pc(sh,1)+'</td><td class="tr num">'+pc(cs,1)+'</td><td class="tr num">'+pc(co,1)+'</td>'+
+        '<td class="tr num" style="color:var(--g)">+'+((cs-co)*100).toFixed(1)+' pts</td>'+
+        '<td class="small muted">'+n0(Math.round(s.active*0.34))+' on-demand, 3+ orders</td></tr>';
+    });
+    h+='</tbody></table></div>';
+  }
+
+  if(tab==='dismiss'){
+    var ds=STORES.slice().sort(function(a,b){return b.guard.dismiss-a.guard.dismiss});
+    h+='<div class="warnbox" style="margin-bottom:12px"><span>⚑</span><span><b>Dismissal is a leading indicator, not a service metric.</b> In this data set a dismissal rate above 3% is followed by a continuation drop roughly three weeks later. Stores below are ranked by exposure — not by index, which lags.</span></div>';
+    h+='<div class="card pad0"><table><thead><tr><th>Branch</th><th class="tr">Dismissal rate</th><th class="tr">Dismissed items / 1k</th><th class="tr">Fulfilment</th>'+
+      '<th class="tr">Complaints / 1k</th><th class="tr">NPS</th><th class="tr">Predicted CON hit</th><th>Status</th></tr></thead><tbody>';
+    ds.forEach(function(s){
+      var pred=s.guard.dismiss>0.03 ? -(s.guard.dismiss-0.03)*420 : 0;
+      h+='<tr class="cl" onclick="openStore(\''+s.code+'\')">'+
+        '<td><div class="tname">'+s.code+' · '+esc(s.name)+'</div><div class="tsub">'+s.areaName+'</div></td>'+
+        '<td class="tr num" style="color:'+(s.guard.dismiss>0.03?'var(--r)':'var(--tx)')+';font-weight:600">'+pc(s.guard.dismiss,1)+'</td>'+
+        '<td class="tr num">'+Math.round(s.guard.dismiss*1000)+'</td>'+
+        '<td class="tr num" style="color:'+(s.guard.fulfil<0.93?'var(--o)':'var(--tx2)')+'">'+pc(s.guard.fulfil,1)+'</td>'+
+        '<td class="tr num" style="color:'+(s.guard.complaints>12?'var(--o)':'var(--tx2)')+'">'+s.guard.complaints+'</td>'+
+        '<td class="tr num">'+s.guard.nps+'</td>'+
+        '<td class="tr num" style="color:'+(pred?'var(--r)':'var(--tx3)')+'">'+(pred?pt(pred,1)+' pts':'—')+'</td>'+
+        '<td>'+(pred?'<span class="st r"><i></i>fix ops first</span>':'<span class="st g"><i></i>no exposure</span>')+'</td></tr>';
+    });
+    h+='</tbody></table></div>';
+    h+='<div class="card" style="margin-top:12px"><div class="card-h"><h3>Why this tab exists</h3></div>'+
+      '<div class="small" style="color:var(--tx2);line-height:1.7">Every other segment in this tool is a marketing decision. This one is not. A dismissal-heavy store cannot be rescued by any message — sending one makes it worse and raises opt-out. '+
+      'The correct output of this tab is a ticket to operations, and the correct state of the store\'s plan is <b>paused</b> until fulfilment recovers.</div></div>';
+  }
+  return h;
+}
+
+/* ============================================================
+   SCREEN 8 — TEST REGISTRY
+   ============================================================ */
+function vTests(){
+  var run=TESTS.filter(function(t){return t.status==='running'}), done=TESTS.filter(function(t){return t.status==='measured'});
+  var adopted=done.filter(function(t){return t.decision==='adopt'});
+  var h='';
+  h+='<div class="grid g4" style="margin-bottom:12px">'+
+    [['Running',run.length+'','reading now','var(--acc)'],
+     ['Closed & measured',done.length+'','with a decision','var(--g)'],
+     ['Adopted',adopted.length+' / '+done.length,'fed into the uplift library','var(--g)'],
+     ['Hypotheses waiting',TESTS.filter(function(t){return t.status==='planned'}).length+'','not yet started','var(--o)']]
+    .map(function(x){return '<div class="card" style="padding:12px"><div class="small muted" style="font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;font-weight:700">'+x[0]+'</div>'+
+      '<div class="num" style="font-size:19px;font-weight:700;margin:3px 0;color:'+x[3]+'">'+x[1]+'</div><div class="tsub">'+x[2]+'</div></div>'}).join('')+'</div>';
+
+  h+='<div class="card pad0" style="margin-bottom:12px"><div class="card-h" style="padding:14px 14px 0"><h3>Registry</h3>'+
+    '<div class="sub">every activity that mattered was a test · every test ends in a decision, including "no difference"</div></div>'+
+    '<table><thead><tr><th>Test</th><th>Trt</th><th>Stores</th><th class="tr">Cells</th><th class="tr">n</th><th class="tr">MDE</th>'+
+    '<th>Window</th><th>Result</th><th>Decision</th></tr></thead><tbody>';
+  TESTS.forEach(function(t){
+    var dec = t.decision==='adopt'?'<span class="st g"><i></i>Adopted</span>' :
+              t.decision==='reject'?'<span class="st r"><i></i>Rejected</span>' :
+              t.status==='running'?'<span class="st b"><i></i>Reading</span>' : '<span class="st n"><i></i>Open</span>';
+    h+='<tr class="cl" onclick="openTest(\''+t.id+'\')">'+
+      '<td style="max-width:240px"><div class="tname">'+esc(t.name)+'</div><div class="tsub">'+t.id+' · '+esc(t.metric)+'</div></td>'+
+      '<td><span class="st" style="color:'+TREAT[t.treatment].color+';background:'+TREAT[t.treatment].color+'14;border-color:'+TREAT[t.treatment].color+'38;font-size:9.5px">'+t.treatment+'</span></td>'+
+      '<td class="small muted">'+esc(t.stores)+'</td>'+
+      '<td class="tr num">'+t.cells+'</td><td class="tr num">'+(t.n?n0(t.n):'—')+'</td><td class="tr num muted">'+t.mde+'</td>'+
+      '<td class="small mono">'+t.start+'→'+t.end+'</td>'+
+      '<td class="small" style="color:'+(t.decision==='adopt'?'var(--g)':t.decision==='reject'?'var(--r)':'var(--tx2)')+'">'+(t.result||'—')+'</td>'+
+      '<td>'+dec+'</td></tr>';
+  });
+  h+='</tbody></table></div>';
+
+  h+='<div class="grid g2">';
+  h+='<div class="card"><div class="card-h"><h3>Uplift library</h3><div class="sub">measured lift per treatment · this is what prices need_score</div></div>'+
+    '<table><thead><tr><th>Treatment</th><th class="tr">Measured lift</th><th class="tr">Source</th><th class="tr">Confidence</th></tr></thead><tbody>'+
+    [['T1','+3.4 pts first order','TST-107',0.93],
+     ['T2','+4.1 pts second order','TST-104',0.96],
+     ['T3','+6.8 pts own-brand share, −1.2% basket','TST-105',0.94],
+     ['T4','+2.1 pts reactivation','TST-102 (open)',0.71],
+     ['T4','EGP 100 ≈ EGP 200 on lost','TST-106',0.91]]
+    .map(function(r){
+      return '<tr><td><span class="st" style="color:'+TREAT[r[0]].color+';background:'+TREAT[r[0]].color+'14;border-color:'+TREAT[r[0]].color+'38;font-size:9.5px">'+r[0]+'</span></td>'+
+      '<td class="tr small">'+r[1]+'</td><td class="tr mono small muted">'+r[2]+'</td>'+
+      '<td class="tr num">'+pc(r[3],0)+'</td></tr>';
+    }).join('')+'</tbody></table>'+
+    '<div class="tsub" style="margin-top:8px">A treatment with no measured lift runs on its prior (0.5× assumed uplift) until a test closes. The library is the difference between a plan and a guess.</div></div>';
+
+  h+='<div class="card"><div class="card-h"><h3>Decision log</h3><div class="sub">what changed in the plan because of a result</div></div>'+
+    '<div class="small" style="color:var(--tx2);line-height:1.8">'+
+    '<div><b style="color:var(--g)">W41</b> — TST-104 adopted: all new-customer second-order pushes moved from day 21 to day 14, 24 stores.</div>'+
+    '<div><b style="color:var(--g)">W40</b> — TST-105 adopted: Own-brand swap nudge extended to B and C tier, excluding branches with own-brand share erosion.</div>'+
+    '<div><b style="color:var(--r)">W39</b> — TST-106 rejected: the EGP 200 win-back voucher retired. Saving EGP 0.4M/quarter with no measurable loss.</div>'+
+    '<div><b style="color:var(--g)">W43</b> — TST-108 adopted: holdout raised to 20% for SMS waves above 5,000 contacts.</div>'+
+    '<div><b style="color:var(--acc)">W46</b> — TST-109 queued: service recovery after a dismissal-heavy order. Blocks the T4 plan for S07 and S11.</div></div>'+
+    '<button class="btn sm" style="margin-top:10px" onclick="toast(\'New hypothesis — pick a treatment, a store set and a metric\',\'ok\')">+ Propose test</button></div>';
+  h+='</div>';
+  return h;
+}
+function openTest(id){
+  var t=TESTS.filter(function(x){return x.id===id})[0]; if(!t) return;
+  var b='';
+  b+='<div class="row" style="gap:6px;margin-bottom:12px;flex-wrap:wrap">'+treatChip(t.treatment)+
+     (t.decision==='adopt'?'<span class="st g"><i></i>Adopted</span>':t.decision==='reject'?'<span class="st r"><i></i>Rejected</span>':
+      t.status==='running'?'<span class="st b"><i></i>Reading</span>':'<span class="st n"><i></i>Planned</span>')+'</div>';
+  b+='<div class="sec">Hypothesis</div><div class="card small" style="padding:11px 12px;color:var(--tx2);line-height:1.6">'+esc(t.hyp)+'</div>';
+  b+='<div class="sec">Design</div><div class="grid g2" style="gap:8px">'+
+    [['Stores',t.stores],['Metric',t.metric],['Cells',t.cells],['Sample',t.n?n0(t.n):'not started'],
+     ['MDE',t.mde],['Window',t.start+' → '+t.end]].map(function(x){
+      return '<div style="background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:7px 10px"><div class="tsub">'+x[0]+'</div><div class="small" style="font-weight:600">'+esc(String(x[1]))+'</div></div>'}).join('')+'</div>';
+  b+='<div class="sec">Result</div>';
+  if(t.result){
+    b+='<div class="card" style="padding:11px 12px"><div class="small" style="font-weight:600;color:'+(t.decision==='adopt'?'var(--g)':'var(--r)')+'">'+esc(t.result)+'</div>'+
+      '<div class="tsub" style="margin-top:4px">Confidence '+pc(t.conf,0)+' · holdout-differenced · excludes no-holdout activities</div></div>';
+  } else {
+    b+='<div class="card"><div class="empty" style="padding:18px">Blinded until minimum sample. Peeking at a running test is how an uplift library becomes fiction.</div></div>';
+  }
+  b+='<div class="sec">If adopted, it changes</div><div class="card small" style="padding:11px 12px;color:var(--tx2);line-height:1.6">'+
+     'The need_score uplift term for '+t.treatment+' ('+TREAT[t.treatment].name+'), the default mechanic in '+esc(t.stores)+', and the expected lift quoted on every activity created afterwards.</div>';
+  b+='<div class="row" style="margin-top:14px"><button class="btn primary sm" onclick="toast(\'Decision recorded with your name and timestamp\',\'ok\')">Record decision</button>'+
+     '<button class="btn sm" onclick="toast(\'Audience definition exported\',\'ok\')">Export audience</button></div>';
+  openDrawer(t.name,t.id+' · '+TREAT[t.treatment].name,b);
+}
+
+/* ============================================================
+   SCREEN 9 — SIGNALS & CORRELATIONS
+   ============================================================ */
+var sigFilter='all';
+function vSignals(){
+  var list=INSIGHTS.filter(function(i){return sigFilter==='all'||i.component===sigFilter||i.store===sigFilter});
+  var h='';
+  h+='<div class="card" style="margin-bottom:12px;background:linear-gradient(135deg,#FBF9F2,#F5F1E6);border-color:#DED7C6">'+
+    '<div class="card-h"><h3>This is not a dashboard the DS team reads — it is an interface the tower consumes</h3></div>'+
+    '<div class="small" style="color:var(--tx2);line-height:1.7">'+
+    'Data Science runs the correlation and behaviour work on its own stack, including the local LLM, and publishes <b>signal objects</b>: a claim, the store or group it applies to, the CVM component it predicts, a lead time, a correlation strength, a sample size and a confidence. '+
+    'The Control Tower never recomputes these. It converts high-confidence signals into <b>flags</b> and into <b>priorities</b> when the predicted component is the store\'s largest drag. That contract is what keeps the two teams decoupled.</div></div>';
+
+  h+='<div class="spread" style="margin-bottom:10px"><div class="tabs">'+
+    [['all','All'],['con','Continuation'],['frq','Frequency'],['val','Basket'],['bse','Base health'],['cvm','Index']]
+    .map(function(t){return '<button class="'+(sigFilter===t[0]?'on':'')+'" onclick="sigFilter=\''+t[0]+'\';render()">'+t[1]+'</button>'}).join('')+'</div>'+
+    '<span class="tsub">refreshed Monday 02:14 · corr-v2 · last run 5h ago</span></div>';
+
+  h+='<div class="grid g2">';
+  list.forEach(function(x){
+    var compLabel={con:'Continuation',frq:'Frequency',val:'Basket',bse:'Base health',cvm:'Index'}[x.component];
+    var strength=Math.abs(x.r)>0.6?'strong':Math.abs(x.r)>0.45?'moderate':'weak';
+    h+='<div class="card" style="padding:13px">'+
+      '<div class="spread" style="margin-bottom:7px">'+
+      '<span class="st c" style="font-size:9.5px"><i></i>'+x.signal+'</span>'+
+      '<span class="mono tsub">'+x.id+' · '+x.model+'</span></div>'+
+      '<div class="small" style="color:var(--tx);line-height:1.6;margin-bottom:9px">'+esc(x.statement)+'</div>'+
+      '<div class="row" style="gap:6px;flex-wrap:wrap;margin-bottom:9px">'+
+        '<span class="st n">'+x.store+'</span>'+
+        '<span class="st n">predicts '+compLabel+'</span>'+
+        '<span class="st n">lag '+x.lag+'w</span>'+
+        '<span class="st '+(strength==='strong'?'g':strength==='moderate'?'w':'n')+'">'+strength+' r='+x.r.toFixed(2)+'</span>'+
+        '<span class="st n">n='+x.n+'</span></div>'+
+      '<div class="bar" style="height:5px"><i style="width:'+(x.conf*100).toFixed(0)+'%;background:'+(x.conf>0.9?'var(--g)':x.conf>0.8?'var(--w)':'var(--o)')+'"></i></div>'+
+      '<div class="spread" style="margin-top:4px"><span class="tsub">confidence</span><span class="tsub">'+pc(x.conf,0)+'</span></div>'+
+      (x.conf>=0.85?'<div class="tsub" style="margin-top:6px;color:var(--g)">→ promotes to flag when the component is the largest drag</div>':
+                     '<div class="tsub" style="margin-top:6px">→ advisory only, below the 0.85 promotion threshold</div>')+
+      '</div>';
+  });
+  h+='</div>';
+
+  h+='<div class="card" style="margin-top:12px"><div class="card-h"><h3>From signal to action</h3><div class="sub">the whole path, so nobody has to guess who does what</div></div>'+
+    '<div class="grid g4" style="gap:8px">'+
+    [['1 · DS computes','Magento order lines, dismissals, complaints, fulfilment → correlation and lag structure on its own stack. Output: signal objects.'],
+     ['2 · Tower ingests','Threshold 0.85 confidence. Signal mapped to a store and to one index component. No free text, no prose prices.'],
+     ['3 · Flag raised','If the predicted component is the store\'s largest drag, the signal becomes a flag on the store and changes its primary treatment.'],
+     ['4 · Result returns','The activity\'s measured outcome goes back to DS as a labelled observation, which is what improves the next correlation run.']]
+    .map(function(x){return '<div style="background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:10px"><div class="small" style="font-weight:700;margin-bottom:4px">'+x[0]+'</div>'+
+      '<div class="tsub" style="line-height:1.55">'+x[1]+'</div></div>'}).join('')+'</div></div>';
+  return h;
+}
+
+/* ============================================================
+   SCREEN 10 — SEGMENTS ADMIN (DS-owned)
+   ============================================================ */
+var SEGS=[
+  {id:'SEG-014',name:'Own-Brand Trialists — Value Tier B/C',owner:'DS · @nour',mode:'rule',state:'live',ver:7,size:84210,delta:'+1,204',ttl:null,usedBy:6,updated:'2026-10-28'},
+  {id:'SEG-013',name:'Brand Switching Cohort — National → Own-Brand',owner:'DS · @nour',mode:'rule',state:'live',ver:3,size:31880,delta:'+402',ttl:null,usedBy:3,updated:'2026-10-21'},
+  {id:'SEG-021',name:'Service Recovery Propensity — Tier A/B (model)',owner:'DS · @k.hamdy',mode:'membership',state:'shadow',ver:2,size:5410,delta:'+318',ttl:null,usedBy:0,updated:'2026-11-02'},
+  {id:'SEG-022',name:'Repeat Dissatisfaction Cohort — 2+ Dismissals / 90d',owner:'DS · @k.hamdy',mode:'rule',state:'shadow',ver:1,size:11240,delta:'−86',ttl:null,usedBy:0,updated:'2026-11-02'},
+  {id:'SEG-018',name:'Recurring-Basket Convertibles — 90d',owner:'DS · @nour',mode:'rule',state:'live',ver:5,size:62730,delta:'+2,940',ttl:null,usedBy:4,updated:'2026-10-14'},
+  {id:'SEG-025',name:'Geo-Catchment Acquisition Panel — Branch S12',owner:'Marketing · @s.kamel',mode:'rule',state:'draft',ver:1,size:null,delta:null,ttl:'90d',usedBy:0,updated:'2026-11-03'},
+  {id:'SEG-009',name:'Seasonal Assortment Switchers — Ramadan',owner:'DS · @nour',mode:'rule',state:'deprecated',ver:4,size:0,delta:'—',ttl:'expired',usedBy:0,updated:'2026-09-30'}
+];
+function stateChip(s){
+  var m={live:['g','Live'],shadow:['w','Shadow'],draft:['n','Draft'],deprecated:['','Deprecated']};
+  var x=m[s]||['n',s];
+  return '<span class="st '+x[0]+'"><i></i>'+x[1]+'</span>';
+}
+function vAdmin(){
+  var h='';
+  h+='<div class="card" style="margin-bottom:12px;background:linear-gradient(135deg,#F2F8F4,#F8F5EC);border-color:#CFE4D8">'+
+    '<div class="card-h"><h3>Data Science owns definitions. The system owns the guardrails.</h3>'+
+    '<div class="sub">no code deploy, no ticket, no analyst in the critical path</div></div>'+
+    '<div class="grid g4" style="gap:8px">'+
+    [['Draft','DS writes and tests a definition against history. Visible to nobody but its owner.'],
+     ['Shadow','Runs beside the live definition for one cycle. Size delta, entrants, leavers, overlap and every affected activity are computed before it can go live.'],
+     ['Live','Promoted by DS, with a version number, an owner and a rollback target.'],
+     ['Deprecated','Kept forever for audit. Any activity still pointing at it is blocked at creation.']]
+    .map(function(x,i){return '<div style="background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:10px"><div class="small" style="font-weight:700;margin-bottom:3px">'+
+      ['①','②','③','④'][i]+' '+x[0]+'</div><div class="tsub" style="line-height:1.55">'+x[1]+'</div></div>'}).join('')+'</div></div>';
+
+  h+='<div class="spread" style="margin-bottom:10px"><h3 style="font-size:12.5px;font-weight:700">Segment registry</h3>'+
+    '<button class="btn sm primary" onclick="toast(\'New segment draft — rule builder or membership push\',\'ok\')">+ New segment</button></div>';
+
+  h+='<div class="card pad0" style="margin-bottom:12px"><table><thead><tr><th>Segment</th><th>Mode</th><th>State</th><th class="tr">v</th>'+
+    '<th class="tr">Members</th><th class="tr">WoW</th><th class="tr">Used by</th><th>Owner</th><th></th></tr></thead><tbody>';
+  SEGS.forEach(function(g){
+    h+='<tr><td><div class="tname">'+esc(g.name)+'</div><div class="tsub">'+g.id+' · updated '+g.updated+'</div></td>'+
+      '<td><span class="st n" style="font-size:9.5px">'+(g.mode==='rule'?'rule':'model push')+'</span></td>'+
+      '<td>'+stateChip(g.state)+'</td>'+
+      '<td class="tr mono small">'+g.ver+'</td>'+
+      '<td class="tr num">'+(g.size==null?'—':n0(g.size))+'</td>'+
+      '<td class="tr num" style="color:'+(g.delta&&g.delta[0]==='+'?'var(--g)':g.delta&&g.delta[0]==='−'?'var(--r)':'var(--tx3)')+'">'+(g.delta||'—')+'</td>'+
+      '<td class="tr num">'+(g.usedBy||'—')+'</td>'+
+      '<td class="small muted">'+esc(g.owner)+'</td>'+
+      '<td class="tr"><button class="btn sm" onclick="openSegment(\''+g.id+'\')">Open</button></td></tr>';
+  });
+  h+='</tbody></table></div>';
+
+  /* shadow compare */
+  var shadow=SEGS.filter(function(g){return g.state==='shadow'})[0];
+  h+='<div class="grid g23">';
+  h+='<div class="card"><div class="card-h"><h3>Shadow compare — '+esc(shadow.name)+'</h3>'+
+    '<div class="sub">'+shadow.id+' v'+shadow.ver+' · running against SEG-021 v1 for one cycle</div></div>'+
+    '<div class="grid g2" style="gap:8px;margin-bottom:10px">'+
+    [['Live size',n0(shadow.size),'current definition'],['Shadow size',n0(shadow.size+1218),'proposed definition'],
+     ['Entrants',n0(1533),'would gain'],['Leavers',n0(315),'would lose'],
+     ['Overlap',pc(0.917,1),'of live membership retained'],['Affected activities','6','repriced on promotion']]
+    .map(function(x){return '<div style="background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px"><div class="tsub">'+x[0]+'</div>'+
+      '<div class="num" style="font-size:14px;font-weight:700">'+x[1]+'</div><div class="tsub">'+x[2]+'</div></div>'}).join('')+'</div>'+
+    '<div class="warnbox"><span>⚠</span><span>The proposed definition adds 1,533 customers of which <b>412 have a dismissal rate above 5%</b>. Promoting it would put service-damaged customers into an offer wave. Recommendation: exclude the dismissal flag, re-shadow.</span></div>'+
+    '<div class="row" style="margin-top:10px"><button class="btn primary sm" onclick="toast(\'Promoted to live as v3 — rollback target v2 recorded\',\'ok\')">Promote to live</button>'+
+    '<button class="btn sm" onclick="toast(\'Sent back to Data Science with the dismissal-breakdown note\',\'ok\')">Return to DS</button>'+
+    '<button class="btn sm" onclick="toast(\'Rollback available for 90 days at any version\',\'ok\')">Version history</button></div></div>';
+
+  h+='<div class="card"><div class="card-h"><h3>Guardrails on DS control</h3><div class="sub">what DS may not change</div></div>'+
+    '<div class="small" style="color:var(--tx2);line-height:1.75">'+
+    '<div>· <b>Lifecycle stage and value tier</b> stay outside DS control — they are the axes of the index, and letting DS redefine them would let DS move the index.</div>'+
+    '<div>· <b>No PII in output.</b> Segments return customer identifiers and counts, never name, phone or email.</div>'+
+    '<div>· <b>Minimum size 500.</b> Below that a segment is a list, not a segment, and it leaks identity.</div>'+
+    '<div>· <b>No pricing.</b> DS may define behaviour; the commercial team sets value.</div>'+
+    '<div>· <b>Shadow mandatory</b> for any change that alters membership by more than 2%.</div>'+
+    '<div>· <b>Ad-hoc segments expire in 90 days</b> unless promoted.</div>'+
+    '</div></div></div>';
+
+  /* field catalog */
+  h+='<div class="grid g2" style="margin-top:12px">'+
+    '<div class="card pad0"><div class="card-h" style="padding:14px 14px 0"><h3>Curated field catalog</h3>'+
+    '<div class="sub">DS builds rules from these fields only — no free SQL against the customer table</div></div>'+
+    '<table><thead><tr><th>Field</th><th>Type</th><th>Source</th><th>Refresh</th></tr></thead><tbody>'+
+    [['store_id / area_id','dimension','Magento order attribution','weekly'],
+     ['lifecycle_stage','dimension (locked)','computed in hub','weekly'],
+     ['value_tier','dimension (locked)','AOV of last 3 orders','weekly'],
+     ['brand / category / sub_category','dimension','Magento order lines','weekly'],
+     ['own_brand_flag (private_label)','boolean','Magento item attribute','weekly'],
+     ['order_type','scheduled | on-demand','Magento order','weekly'],
+     ['dismissed_items_count','number','Magento fulfilment','weekly'],
+     ['items_count','number','Magento order','weekly'],
+     ['continuation / freq / basket','number','computed in hub','weekly'],
+     ['complaint_flag','boolean','service desk','daily']]
+    .map(function(r){return '<tr><td class="small mono">'+r[0]+'</td><td class="tsub">'+r[1]+'</td><td class="tsub">'+r[2]+'</td><td class="tsub">'+r[3]+'</td></tr>'}).join('')+
+    '</tbody></table></div>';
+  h+='<div class="card"><div class="card-h"><h3>Membership push (model segments)</h3><div class="sub">for scores DS computes outside the hub</div></div>'+
+    '<pre class="code">POST /api/v1/segments/SEG-021/memberships'+
+    '\n{\n  "version": 2,\n  "computed_at": "2026-11-02T02:00:00Z",\n  "model": "propensity-dismissal-v1",\n  "members": [\n'+
+    '    { "customer_ref": "8f2c…", "score": 0.81 },\n    { "customer_ref": "41bd…", "score": 0.77 }\n  ]\n}</pre>'+
+    '<div class="small muted" style="margin-top:8px;line-height:1.6">Identifier is the internal UUID, never the Magento ID and never a phone. A push is atomic and versioned: the segment is either fully at v2 or fully at v1, never half-updated. A push that would breach the minimum size or the shadow window is rejected with a reason.</div></div>';
+  h+='</div>';
+  return h;
+}
+function openSegment(id){
+  var g=SEGS.filter(function(x){return x.id===id})[0]; if(!g) return;
+  var b='';
+  b+='<div class="row" style="gap:6px;margin-bottom:12px">'+stateChip(g.state)+
+     '<span class="st n">'+(g.mode==='rule'?'rule-defined':'membership push')+'</span><span class="st n">v'+g.ver+'</span></div>';
+  b+='<div class="sec">Definition</div><div class="card" style="padding:10px 12px"><pre class="code">'+
+    'store_id IN (all)\nAND value_tier IN ("B","C")\nAND private_label_items_28d = 0\nAND orders_28d &gt;= 2\nAND dismissal_rate_90d &lt; 0.03'+
+    '</pre></div>';
+  b+='<div class="sec">Membership</div><div class="grid g2" style="gap:8px">'+
+    [['Size',g.size==null?'—':n0(g.size)],['WoW',g.delta||'—'],['Owner',g.owner],['Last change',g.updated]]
+    .map(function(x){return '<div style="background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:7px 10px"><div class="tsub">'+x[0]+'</div><div class="small" style="font-weight:600">'+esc(String(x[1]))+'</div></div>'}).join('')+'</div>';
+  b+='<div class="sec">Used by</div><div class="small muted">'+(g.usedBy?g.usedBy+' activities · changing this definition reprices all of them at next sync':'No activities reference this segment.')+'</div>';
+  b+='<div class="row" style="margin-top:14px"><button class="btn primary sm" onclick="toast(\'Saved as a new draft version — live membership unchanged\',\'ok\')">Edit as new version</button>'+
+     '<button class="btn sm" onclick="toast(\'Deprecated — history retained for audit\',\'ok\')">Deprecate</button></div>';
+  openDrawer(g.name,g.id+' · '+g.owner,b);
+}
+
+/* ============================================================
+   SCREEN 11 — SETTINGS & WEIGHTS
+   ============================================================ */
+var simW={con:0.40,frq:0.20,val:0.25,bse:0.15};
+function cvmW(c,f,v,b,W){
+  return 100*Math.pow(c/BASE.con,W.con)*Math.pow(f/BASE.frq,W.frq)*Math.pow(v/BASE.val,W.val)*Math.pow(b/BASE.bse,W.bse);
+}
+function vSettings(){
+  var h='';
+  h+='<div class="grid g23">';
+
+  /* weights */
+  h+='<div class="card"><div class="card-h"><h3>CVM index weights</h3>'+
+    '<div class="sub">move a slider and watch the rank stability test — this is the acceptance criterion, not the formula</div></div>'+
+    '<div id="wSliders"></div><div id="wOut" style="margin-top:10px"></div>'+
+    '<div class="row" style="margin-top:10px"><button class="btn sm" onclick="simW={con:0.4,frq:0.2,val:0.25,bse:0.15};drawSliders()">Reset to live</button>'+
+    '<button class="btn sm" onclick="toast(\'Proposal saved as a draft — weight changes need the quarterly reset\',\'ok\')">Propose change</button></div></div>';
+
+  /* rationale */
+  h+='<div class="card"><div class="card-h"><h3>Why these weights</h3></div>'+
+    '<div class="small" style="color:var(--tx2);line-height:1.7">'+
+    '<div style="margin-bottom:7px"><b style="color:var(--tx)">Continuation dominates at 0.40</b> because monthly continuation is the declared north star of the strategy. It is not 1.0, because a single metric weighting itself is just the metric again.</div>'+
+    '<div style="margin-bottom:7px"><b style="color:var(--tx)">Basket is 0.25, not higher,</b> because a basket gain on a shrinking base is a false win — it is exactly the pattern that made the acquisition case look healthy while value decayed.</div>'+
+    '<div style="margin-bottom:7px"><b style="color:var(--tx)">Frequency is 0.20</b> and is the leading version of the same signal: orders per active customer fall two to four weeks before continuation does.</div>'+
+    '<div><b style="color:var(--tx)">Base health is the lowest at 0.15</b> because it overlaps continuation and moves slowly — it is the context term, not a driver.</div>'+
+    '</div>'+
+    '<div class="sec">Constraints enforced</div>'+
+    '<table><tbody>'+
+    [['C1','CON ≥ 0.35','continuation must dominate'],['C2','VAL + FRQ ≥ 0.40','commercial and cadence weight cannot be starved'],
+     ['C3','BSE ≤ 0.20','context term stays a context term'],['C4','each ≥ 0.15','below this a 10-pt collapse is under 0.8 index points — invisible'],
+     ['C5','Σ = 1','obvious, and violated constantly in practice']]
+    .map(function(r){return '<tr><td class="mono small muted" style="width:34px">'+r[0]+'</td><td class="small" style="width:88px">'+r[1]+'</td><td class="tsub">'+r[2]+'</td></tr>'}).join('')+
+    '</tbody></table></div>';
+
+  h+='</div>';
+
+  /* thresholds */
+  h+='<div class="grid g2" style="margin-top:12px">'+
+    '<div class="card"><div class="card-h"><h3>Status thresholds</h3><div class="sub">relative to the store target, never to the group</div></div>'+
+    '<table><tbody>'+
+    [['g','On target','index ≥ target'],['w','Watch','target −3 to 0'],['o','Off target','target −8 to −3, or 2 consecutive off weeks'],
+     ['r','Critical','below target −8, or 3 consecutive off weeks']]
+    .map(function(r){return '<tr><td style="width:100px">'+statusPill(r[0])+'</td><td class="small" style="width:130px">'+r[2]+'</td><td class="tsub">'+r[1]+'</td></tr>'}).join('')+
+    '</tbody></table><div class="tsub" style="margin-top:8px">A guardrail breach downgrades one level and cannot be traded away.</div></div>';
+
+  h+='<div class="card"><div class="card-h"><h3>Hierarchy</h3><div class="sub">three levels, not fixed — nodes are effective-dated</div></div>'+
+    '<table><thead><tr><th>Level</th><th>Node</th><th class="tr">Stores</th></tr></thead><tbody>'+
+    '<tr><td class="small">1 · Group</td><td class="small" style="font-weight:600">Seoudi</td><td class="tr num">24</td></tr>'+
+    AREAS.map(function(a){
+      return '<tr><td class="small muted">2 · Area</td><td class="small">'+esc(a.name)+'</td><td class="tr num">'+STORES.filter(function(s){return s.area===a.id}).length+'</td></tr>';
+    }).join('')+
+    '<tr><td class="small muted">3 · Branch</td><td class="small muted">physical branch — order attributed by fulfilling store</td><td class="tr num">24</td></tr>'+
+    '</tbody></table><div class="tsub" style="margin-top:8px">Branch and area nodes carry validity dates, so a closed branch does not rewrite history.</div></div></div>';
+
+  /* data + policy */
+  h+='<div class="grid g3" style="margin-top:12px">'+
+    '<div class="card"><div class="card-h"><h3>Data gates</h3><div class="sub">must pass before any screen updates</div></div>'+
+    '<div class="small" style="line-height:1.9">'+
+    [['Store attribution coverage ≥ 99%',true],['Item-level completeness ≥ 98%',false],
+     ['Dismissal field present ≥ 96%',true],['PL flag populated ≥ 98%',true],['No unconsented contact',true]]
+    .map(function(g){return '<div class="spread"><span>'+g[0]+'</span><span class="st '+(g[1]?'g':'r')+'"><i></i>'+(g[1]?'pass':'fail')+'</span></div>'}).join('')+
+    '</div></div>'+
+    '<div class="card"><div class="card-h"><h3>Contact policy</h3></div>'+
+    '<div class="small" style="color:var(--tx2);line-height:1.9">'+
+    '<div class="spread"><span>Max contacts / customer / week</span><b>3</b></div>'+
+    '<div class="spread"><span>Default holdout</span><b>10%</b></div>'+
+    '<div class="spread"><span>Holdout, SMS &gt; 5,000</span><b>20%</b></div>'+
+    '<div class="spread"><span>Quiet hours</span><b>21:00–09:00</b></div>'+
+    '<div class="spread"><span>Opt-out suppression</span><b>immediate</b></div>'+
+    '<div class="spread"><span>"Don\'t send"</span><b>first-class outcome</b></div></div></div>'+
+    '<div class="card"><div class="card-h"><h3>Roles</h3></div>'+
+    '<div class="small" style="color:var(--tx2);line-height:1.9">'+
+    [['Commercial','own targets, approve activities'],['Data Science','own segment definitions'],
+     ['Operations','own service metrics, blocks sends'],['Marketing','build and run activities'],
+     ['Admin','weights and thresholds, quarterly only']]
+    .map(function(r){return '<div class="spread"><span>'+r[0]+'</span><span class="tsub">'+r[1]+'</span></div>'}).join('')+
+    '</div></div></div>';
+  return h;
+}
+function drawSliders(){
+  var keys=[['con','Continuation'],['frq','Frequency'],['val','Basket value'],['bse','Base health']];
+  document.getElementById('wSliders').innerHTML=keys.map(function(k){
+    return '<div class="field" style="margin-bottom:8px"><label style="display:flex;justify-content:space-between">'+
+      '<span>'+k[1]+'</span><span class="mono" id="wv_'+k[0]+'" style="color:var(--acc);font-weight:700">'+simW[k[0]].toFixed(2)+'</span></label>'+
+      '<input type="range" id="ws_'+k[0]+'" min="5" max="60" step="5" value="'+(simW[k[0]]*100)+'" oninput="setW(\''+k[0]+'\',this.value)" style="width:100%"></div>';
+  }).join('');
+  updateWeightOut();
+}
+function setW(k,v){
+  document.getElementById('ws_'+k).value=v;
+  var sum=0;
+  ['con','frq','val','bse'].forEach(function(x){ sum+=+document.getElementById('ws_'+x).value/100; });
+  ['con','frq','val','bse'].forEach(function(x){
+    simW[x]=(+document.getElementById('ws_'+x).value/100)/sum;
+    var el=document.getElementById('wv_'+x); if(el) el.textContent=simW[x].toFixed(2);
+  });
+  updateWeightOut();
+}
+function updateWeightOut(){
+  var ids=STORES.map(function(s){
+    var w=s.weekly[11]; return {code:s.code, a:cvmW(w.con,w.frq,w.val,w.bse,WT), b:cvmW(w.con,w.frq,w.val,w.bse,simW)};
+  });
+  /* rank stability: share of store pairs whose relative order flips */
+  var swaps=0, pairs=0;
+  for(var i=0;i<ids.length;i++) for(var j=i+1;j<ids.length;j++){
+    pairs++;
+    if((ids[i].a-ids[j].a)*(ids[i].b-ids[j].b)<0) swaps++;
+  }
+  var swapPct=swaps/pairs;
+  var viol=[];
+  if(simW.con<0.35) viol.push('C1 CON ≥ 0.35');
+  if(simW.val+simW.frq<0.40) viol.push('C2 VAL+FRQ ≥ 0.40');
+  if(simW.bse>0.20) viol.push('C3 BSE ≤ 0.20');
+  if(Math.min(simW.con,simW.frq,simW.val,simW.bse)<0.15) viol.push('C4 each ≥ 0.15');
+  var pass = swapPct<0.10 && viol.length===0;
+  var h='<div class="grid g2" style="gap:8px">'+
+    '<div style="background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px"><div class="tsub">Rank swaps vs live weights</div>'+
+    '<div class="num" style="font-size:14px;font-weight:700;color:'+(swapPct<0.10?'var(--g)':'var(--r)')+'">'+pc(swapPct,1)+'</div>'+
+    '<div class="tsub">'+(swaps)+' of '+pairs+' store pairs · limit 10%</div></div>'+
+    '<div style="background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px"><div class="tsub">Constraint check</div>'+
+    '<div class="num" style="font-size:14px;font-weight:700;color:'+(viol.length?'var(--r)':'var(--g)')+'">'+(viol.length?'violated':'all pass')+'</div>'+
+    '<div class="tsub">'+(viol.length?viol.join(' · '):'C1–C5 satisfied')+'</div></div></div>'+
+    '<div class="'+(pass?'okbox':'warnbox')+'" style="margin-top:8px"><span>'+(pass?'✓':'⚠')+'</span><span>'+
+    (pass
+      ? 'Acceptable. The ranking of stores barely moves, so any wet signature on a new weight set would be cosmetic. Note that this is the point: the test passes at the current weights precisely because they sit at a flat optimum.'
+      : 'Rejected. At these weights the store ranking is being driven by noise rather than by value, and the flags that result would not be reproducible week to week. '+
+        (viol.length?'It also breaks '+viol.join(' and ')+'. ':''))+
+    '</span></div>'+
+    '<div class="tsub" style="margin-top:8px">This is the whole acceptance test from the spec, running live on 24 stores: perturb, renormalise, recount pair swaps. A formula cannot be "correct"; a ranking can be stable or not.</div>';
+  document.getElementById('wOut').innerHTML=h;
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+document.getElementById('periodChip').innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg> W45 · 28 Oct – 3 Nov 2026';
+buildNav();
+document.getElementById('pgTitle').textContent=TITLES.tower[0];
+document.getElementById('pgChip').textContent=TITLES.tower[1];
+document.getElementById('pgSub').textContent=TITLES.tower[2];
+render();
+</script>
+</body>
+</html>

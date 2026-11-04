@@ -1,0 +1,31 @@
+key: active
+name: Active nurture & AOV lift
+description: >
+  Engaged customers who buy regularly. Nothing here is urgent, so the journey
+  is quiet: one in-app nudge, then a replenishment reminder timed to their own
+  buying cadence. The failure mode to avoid is burning goodwill on people who
+  were going to buy anyway.
+priority: 30
+goal: repeat_order
+cooldown_days: 60
+
+entry:
+  lifecycle: [active]
+  all:
+    - {field: orders_count, op: gte, value: 2}
+    - {field: days_since_last_order, op: lte, value: 60}
+    - {field: suppressed, op: is_false}
+
+exit:
+  - {field: suppressed, op: is_true, reason: suppressed}
+  - {field: days_since_last_order, op: lte, value: 3, reason: ordered_recently}
+  - {field: lifecycle, op: eq, value: lost, reason: disqualified}
+
+steps:
+  - {type: wait, hours: 24}
+  - {type: send, channel: inapp, template: active_category_nudge, include_offer: false}
+  - {type: wait, hours: 336}
+  - {type: send, channel: email, template: active_replenishment, include_offer: true}
+  - {type: wait, hours: 336}
+  - {type: send, channel: push, template: active_cross_sell, include_offer: false}
+  - {type: end}

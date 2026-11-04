@@ -1,0 +1,3 @@
+# Internal prototype. Not for indexing.
+User-agent: *
+Disallow: /
